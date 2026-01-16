@@ -1,0 +1,111 @@
+name: agro
+description: ""
+publish_to: 'none' 
+version: 1.0.1+1
+
+environment:
+  sdk: ^3.5.4
+
+dependencies:
+  flutter:
+    sdk: flutter
+     
+  
+
+
+  cupertino_icons: ^1.0.8
+  http: ^1.2.2
+  get: ^4.6.6
+  getx_base_classes: ^0.0.2
+  loading_indicator: ^3.1.1
+  firebase_core: ^3.13.0
+  firebase_messaging: ^15.2.5
+  flutter_local_notifications: ^19.1.0
+  intl: ^0.20.2
+  device_info_plus: ^11.3.3
+  logger: ^2.5.0
+  package_info_plus: ^8.1.2
+  shared_preferences: ^2.3.5
+  sizer: ^3.0.4
+  iconsax: ^0.0.8
+  dio: ^5.4.0
+  path_provider: ^2.1.5
+  permission_handler: ^11.0.1
+  dropdown_button2: ^2.3.9
+  flutter_launcher_icons: ^0.14.3
+  flutter_file_dialog: ^3.0.2
+  google_fonts: ^6.3.2 
+  keyboard_avoider: ^0.2.0
+  flutter_svg: ^2.0.17
+  flutter_slidable: ^3.0.0
+  fl_chart: ^0.71.0
+  syncfusion_flutter_charts: ^29.1.39
+  # audio_session: ^0.2.1
+  pdf: ^3.11.3
+  open_file: ^3.5.10
+  local_auth: ^2.3.0
+  # fluttertoast: ^8.2.12
+  flutter_native_splash: ^2.4.6
+  cached_network_image: ^3.4.1
+  flutter_gen_runner: ^5.12.0
+  table_calendar: ^3.2.0
+  url_launcher: ^6.3.2
+  pull_to_refresh: ^2.0.0
+  flutter_dash: ^1.0.0
+  dotted_border: ^2.1.0
+  
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  build_runner:
+  
+
+
+
+  flutter_lints: ^4.0.0
+
+flutter_native_splash:
+  color: "#FFFFFF"
+  image: assets/logo_foreground.png
+  android: true
+  ios: true
+
+flutter:
+
+
+  uses-material-design: true
+
+  assets:
+    - assets/images/
+    - assets/icons/
+    - assets/fonts/
+
+  fonts:
+    - family: Mona Sans
+      fonts:
+        - asset: assets/fonts/MonaSans-Light.ttf
+          weight: 300
+        - asset: assets/fonts/MonaSans-Regular.ttf
+          weight: 400
+        - asset: assets/fonts/MonaSans-Medium.ttf
+          weight: 500
+        - asset: assets/fonts/MonaSans-SemiBold.ttf
+          weight: 600  
+      
+         
+
+flutter_launcher_icons:
+  android: true
+  ios: true
+  adaptive_icon_background: "assets/logo.png"  # Background image
+  adaptive_icon_foreground: "assets/logo.png"  # Foreground logo
+  image_path: "assets/logo.png" # Fallback image
+  remove_alpha_ios: true
+
+
+  
+ 
+
+
+     
+       
