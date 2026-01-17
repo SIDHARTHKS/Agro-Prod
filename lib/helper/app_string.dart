@@ -6,9 +6,10 @@ const String refreshTokenKey = 'refreshTokenKey';
 const String userNameKey = 'userNameKey';
 const String loginNameKey = 'loginNameKey';
 const String loginPasswordKey = 'loginPasswordKey';
-const String userImgKey = 'userImgKey';
-const String employeeIdKey = 'employeeIdKey';
-const String employeeTypeKey = 'employeeTypeKey';
+const String userIdKey = 'userIdKey';
+const String defaultCompCodeKey = 'defaultCompCodeKey';
+const String defaultBranchCodeKey = 'defaultBranchCodeKey';
+const String defaultLocationIDKey = 'defaultLocationIDKey';
 const String rememberMeKey = 'rememberMeKey';
 const String profileKey = 'profileKey';
 const String successKey = 'successKey';
@@ -182,3 +183,8 @@ const String allRightReserved = '2023  |  All rights reserved';
 //custom
 
 const String welcomDialogue = 'WelcometoMuzAgroApp';
+
+//Login Credentials
+
+const String user = 'Admin';
+const String pass = 'safe';

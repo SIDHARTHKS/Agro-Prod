@@ -36,7 +36,7 @@ class SplashController extends AppBaseController
     var preference = myApp.preferenceHelper;
     if (preference != null) {
       final rememberMe = preference.getBool(rememberMeKey);
-      final userId = preference.getString(employeeIdKey);
+      final userId = preference.getString(userIdKey);
       final token = preference.getString(accessTokenKey);
 
       if (rememberMe && userId != "-1" && token.isNotEmpty) {

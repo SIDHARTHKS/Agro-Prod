@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:agro/helper/app_message.dart';
 import 'package:agro/view/login/bottomsheet/forget_password_bottomsheet.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -12,11 +13,17 @@ import '../../helper/route.dart';
 import '../../helper/sizer.dart';
 import '../../service/auth_service.dart';
 import '../widget/common_widget.dart';
+import '../splash/splash_screen.dart';
 import '../widget/textformfield/app_textformfield_widget.dart';
 
 class LoginScreen extends AppBaseView<LoginController> {
   final AuthService _authService = Get.find<AuthService>();
   LoginScreen({super.key});
+
+  static final RxBool _headerArrived = false.obs;
+  static final GlobalKey headerKey = GlobalKey();
+  static const double headerInset = 130;
+  static final RxBool showHeader = false.obs;
 
   @override
   Widget buildView() => _buildScaffold();
@@ -30,17 +37,47 @@ class LoginScreen extends AppBaseView<LoginController> {
         ),
       );
 
-  Widget _buildBody() => Stack(
+  Widget _buildBody() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!_headerArrived.value) {
+        _headerArrived.value = true;
+      }
+    });
+
+    return SizedBox.expand(
+      child: Stack(
+        clipBehavior: Clip.hardEdge,
         children: [
-          // 1️⃣ Fixed background
+          // Background
           Positioned.fill(
             child: Image.asset(
-              Assets.images.loginBg.path,
+              Assets.images.loginBg1.path,
               fit: BoxFit.cover,
             ),
           ),
 
-          // 2️⃣ Scrollable login form
+          Obx(() => showHeader.value
+              ? Positioned(
+                  top: 0,
+                  left: headerInset,
+                  right: headerInset,
+                  height: 220,
+                  child: ClipRRect(
+                    borderRadius: const BorderRadius.only(
+                      bottomLeft: Radius.circular(20),
+                      bottomRight: Radius.circular(20),
+                    ),
+                    child: Align(
+                      alignment: Alignment.topCenter,
+                      heightFactor: 0.5,
+                      child: const SplashScreen()
+                          .buildSplashSurface(), // static splash replica
+                    ),
+                  ),
+                )
+              : const SizedBox()),
+
+          // Login content
           SafeArea(
             child: GestureDetector(
               onTap: () {
@@ -55,15 +92,15 @@ class LoginScreen extends AppBaseView<LoginController> {
                       left: 12,
                       right: 12,
                       top: 20,
-                      bottom: MediaQuery.of(context).viewInsets.bottom *
-                          0.5, // ✅ only half scroll
+                      bottom: MediaQuery.of(context).viewInsets.bottom * 0.5,
                     ),
                     child: ConstrainedBox(
                       constraints: BoxConstraints(
                         minHeight: constraints.maxHeight -
                             MediaQuery.of(context).viewInsets.bottom * 0.5,
                       ),
-                      child: Center(
+                      child: Padding(
+                        padding: const EdgeInsets.only(top: 260),
                         child: _mobileView(),
                       ),
                     ),
@@ -73,7 +110,9 @@ class LoginScreen extends AppBaseView<LoginController> {
             ),
           ),
         ],
-      );
+      ),
+    );
+  }
 
   Padding _mobileView() {
     return Padding(
@@ -83,7 +122,7 @@ class LoginScreen extends AppBaseView<LoginController> {
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            height(Platform.isIOS ? 150 : 160), // ✅ adjust subtle difference
+            height(20),
             appText(
               "HELLO",
               fontSize: 28,
@@ -98,7 +137,7 @@ class LoginScreen extends AppBaseView<LoginController> {
               fontWeight: FontWeight.w400,
               color: AppColorHelper().primaryTextColor,
             ),
-            height(80),
+            //height(80),
             Form(
               key: controller.form,
               child: Column(
@@ -121,10 +160,7 @@ class LoginScreen extends AppBaseView<LoginController> {
                             fontWeight: FontWeight.w500,
                           ),
                     //           onPressed: () {
-                    //   showErrorSnackbar(
-                    //       title: "Invalid Credentials",
-                    //       message:
-                    //           "Login failed. Please check your username and password.");
+
                     // }
                     onPressed: () async {
                       if (controller.rxIsLoading.value) return;
@@ -136,6 +172,11 @@ class LoginScreen extends AppBaseView<LoginController> {
                               homePageRoute,
                             );
                           });
+                        } else {
+                          showErrorSnackbar(
+                              title: "Invalid Credentials",
+                              message:
+                                  "Login failed. Please check your username and password.");
                         }
                       });
                     },

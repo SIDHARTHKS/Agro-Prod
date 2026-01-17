@@ -2,6 +2,7 @@ import 'package:agro/gen/assets.gen.dart';
 import 'package:agro/helper/app_string.dart';
 import 'package:agro/helper/navigation.dart';
 import 'package:agro/helper/route.dart';
+import '../../helper/core/base/app_base_controller.dart';
 import 'package:agro/helper/sizer.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -101,7 +102,7 @@ class HomeScreen extends AppBaseView<HomeController> {
               fontWeight: FontWeight.w500,
             ),
             onPressed: () async {
-              navigateTo(loginPageRoute);
+              controller.logout();
             },
           ),
         ],

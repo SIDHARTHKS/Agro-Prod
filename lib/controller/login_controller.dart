@@ -116,22 +116,22 @@ class LoginController extends AppBaseController {
     String password = passwordController.text.trim();
 
     // username validation
-    // if (isStringNullOrEmpty(email)) {
-    //   isUsernameValid(false);
-    // } else {
-    //   isUsernameValid(true);
-    // }
+    if (isStringNullOrEmpty(email)) {
+      isUsernameValid(false);
+    } else {
+      isUsernameValid(true);
+    }
 
     // // password validation
-    // if (isStringNullOrEmpty(password)) {
-    //   isPasswordValid(false);
-    // } else {
-    //   isPasswordValid(true);
-    // }
+    if (isStringNullOrEmpty(password)) {
+      isPasswordValid(false);
+    } else {
+      isPasswordValid(true);
+    }
 
-    //Temporary Use Only
-    isUsernameValid(true);
-    isPasswordValid(true);
+    // //Temporary Use Only
+    // isUsernameValid(true);
+    // isPasswordValid(true);
 
     // return true only if both are valid
     if (isUsernameValid.value && isPasswordValid.value) {
@@ -140,26 +140,39 @@ class LoginController extends AppBaseController {
     return false;
   }
 
+  String gfPwdConvert(String chrText) {
+    String pwd = '';
+    try {
+      // Encrypt
+      String trimmed = chrText.trim();
+      for (int i = 0; i < trimmed.length; i++) {
+        int code = trimmed.codeUnitAt(i) + 100;
+        pwd += String.fromCharCode(code);
+      }
+    } catch (e) {
+      // handle/log error if needed
+    }
+    return pwd;
+  }
+
   Future<bool> _callSignInService() async {
     try {
       showLoader();
       await Future.delayed(const Duration(milliseconds: 150));
-      String username = "admin"; //userController.text.trim();
-      String password = "safe"; //passwordController.text.trim();
-      // if (!username.endsWith("@MUZIRIS")) {
-      //   username += "@MUZIRIS";
-      // }
+      String username = userController.text.trim();
+      String password = gfPwdConvert(passwordController.text.trim());
+
       LoginResponse? response = await _authService.login(LoginRequest(
-        userCode: username,
-        password: password,
+        userCode: user,
+        password: pass,
       ));
       if (response != null) {
         rxLoginResponse.value = response;
         myApp.preferenceHelper!
             .setString(accessTokenKey, rxLoginResponse.value!.data ?? '');
 
-        //bool setProfile = await _callUserSignIn(username, password);
-        bool setProfile = true;
+        bool setProfile = await _callUserSignIn(username, password);
+        //bool setProfile = true;
         return setProfile;
       }
     } catch (e) {
@@ -170,31 +183,34 @@ class LoginController extends AppBaseController {
     return false;
   }
 
-  // Future<bool> _callUserSignIn(String name, String pass) async {
-  //   try {
-  //     showLoader();
-  //     var userLoginRequestList = [
-  //       CommonRequest(attribute: "UserCode", value: name),
-  //       CommonRequest(attribute: "UserPassword", value: pass),
-  //     ];
-  //     UserLoginResponse? response =
-  //         await _authService.userLogin(userLoginRequestList);
-  //     if (response != null) {
-  //       rxUserLoginResponse.value = response;
-  //       await _saveLoginDataToPref();
+  Future<bool> _callUserSignIn(String name, String pass) async {
+    try {
+      showLoader();
+      // var userLoginRequestList = [
+      //   CommonRequest(attribute: "UserCode", value: name),
+      //   CommonRequest(attribute: "UserPassword", value: pass),
+      // ];
+      UserLoginResponse? response =
+          await _authService.userLogin(UserLoginRequest(
+        userCode: name,
+        password: pass,
+      ));
+      if (response != null) {
+        rxUserLoginResponse.value = response;
+        await _saveLoginDataToPref();
 
-  //       userController.clear();
-  //       passwordController.clear();
+        userController.clear();
+        passwordController.clear();
 
-  //       return true;
-  //     }
-  //   } catch (e) {
-  //     appLog('$exceptionMsg $e', logging: Logging.error);
-  //   } finally {
-  //     hideLoader();
-  //   }
-  //   return false;
-  // }
+        return true;
+      }
+    } catch (e) {
+      appLog('$exceptionMsg $e', logging: Logging.error);
+    } finally {
+      hideLoader();
+    }
+    return false;
+  }
 
   Future<void> _saveLoginDataToPref() async {
     if (myApp.preferenceHelper != null) {
@@ -206,17 +222,20 @@ class LoginController extends AppBaseController {
       myApp.preferenceHelper!
           .setString(loginPasswordKey, passwordController.text.trim());
 
-      //user image
-      myApp.preferenceHelper!
-          .setString(userImgKey, rxUserLoginResponse.value!.userImgUrl ?? '');
-
       //user details
       myApp.preferenceHelper!
           .setString(userNameKey, rxUserLoginResponse.value!.userName ?? '');
-      myApp.preferenceHelper!.setString(employeeIdKey,
-          (rxUserLoginResponse.value!.employeeId ?? "").toString());
       myApp.preferenceHelper!.setString(
-          employeeTypeKey, rxUserLoginResponse.value!.employeeType ?? '');
+          userIdKey, (rxUserLoginResponse.value!.userId ?? "").toString());
+
+      myApp.preferenceHelper!.setString(
+          defaultCompCodeKey, rxUserLoginResponse.value!.defaultCompCode ?? '');
+
+      myApp.preferenceHelper!.setString(defaultBranchCodeKey,
+          rxUserLoginResponse.value!.defaultBranchCode ?? '');
+
+      myApp.preferenceHelper!.setString(defaultLocationIDKey,
+          (rxUserLoginResponse.value!.defaultLocationId ?? "").toString());
 
       // token
       myApp.preferenceHelper!

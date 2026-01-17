@@ -5,7 +5,7 @@ import 'package:get/get.dart';
 import '../helper/core/base/app_base_controller.dart';
 import '../service/delayed_payment_service.dart';
 import 'package:agro/model/delayed_payments_model.dart';
-
+import 'package:agro/helper/route.dart';
 import 'dart:async';
 import '../helper/app_message.dart';
 import '../helper/enum.dart';
@@ -99,5 +99,18 @@ class HomeController extends AppBaseController
 
   Future<bool> fetchInitData() async {
     return true;
+  }
+
+  Future<void> logout() async {
+    final pref = myApp.preferenceHelper;
+
+    if (pref != null) {
+      await pref.setBool(rememberMeKey, true);
+      await pref.setString(userIdKey, "-1");
+      await pref.remove(accessTokenKey);
+      await pref.remove(loginPasswordKey);
+    }
+
+    Get.offAllNamed(loginPageRoute);
   }
 }
