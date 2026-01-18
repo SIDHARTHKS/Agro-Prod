@@ -14,6 +14,7 @@ import '../../helper/navigation.dart';
 import '../../helper/route.dart';
 import '../widget/common_widget.dart';
 import '../login/login_screen.dart';
+import '../../helper/sizer.dart';
 
 class SplashScreen extends AppBaseView<SplashController> {
   const SplashScreen({super.key});
@@ -92,7 +93,66 @@ class SplashScreen extends AppBaseView<SplashController> {
         ),
       );
 
-  Widget _loaderWidget() => buildSplashSurface(animateLogo: true);
+  Widget _loaderWidget() => Stack(
+        fit: StackFit.expand,
+        children: [
+          //first image
+          Image.asset(
+            Assets.images.splashBg1.path,
+            fit: BoxFit.cover,
+          ),
+
+          // second image fade
+          AnimatedOpacity(
+            duration: const Duration(milliseconds: 1000),
+            curve: Curves.easeInOut,
+            opacity: controller.rxShowSecondImage.value ? 1.0 : 0.0,
+            child: Image.asset(
+              Assets.icons.agromisLogo.path,
+              fit: BoxFit.cover,
+            ),
+          ),
+
+          // Align(
+          //   alignment: const Alignment(0, -0.1),
+          //   child: AnimatedOpacity(
+          //     duration: const Duration(milliseconds: 1000),
+          //     curve: Curves.easeInOut,
+          //     opacity: controller.rxShowSecondImage.value ? 1.0 : 0.0,
+          //     child: muzirisLogo(),
+          //   ),
+          // ),
+
+          // Align(
+          //   alignment: const Alignment(0, 1),
+          //   child: SizedBox(
+          //     height: Get.height * 0.48,
+          //     child: SlideTransition(
+          //       position: controller.textSlide,
+          //       child: Column(
+          //         mainAxisSize: MainAxisSize.max,
+          //         crossAxisAlignment: CrossAxisAlignment.center,
+          //         children: [
+          //           appText(
+          //             "Initializing your workspace",
+          //             fontWeight: FontWeight.w500,
+          //             fontSize: 14,
+          //             textAlign: TextAlign.center,
+          //           ),
+          //           height(4),
+          //           appText(
+          //             "Please wait...",
+          //             fontWeight: FontWeight.w800,
+          //             fontSize: 16,
+          //             textAlign: TextAlign.center,
+          //           ),
+          //         ],
+          //       ),
+          //     ),
+          //   ),
+          // ),
+        ],
+      );
 
   void _openAppUpdateDialog() {
     showDialog(
@@ -127,7 +187,7 @@ class SplashScreen extends AppBaseView<SplashController> {
     final match = Get.routeTree.matchRoute(loginPageRoute);
     final route = match.route!;
     route.binding?.dependencies();
-    final loginPage = route.page!();
+    final loginPage = route.page();
 
     entry = OverlayEntry(
       builder: (_) => TweenAnimationBuilder<double>(
@@ -148,7 +208,7 @@ class SplashScreen extends AppBaseView<SplashController> {
 
           // Logo path (moves, never scales)
           final double startLogoY = Get.height * 0.5 - 80;
-          final double endLogoY = headerVisibleHeight / 2 - 80;
+          const double endLogoY = headerVisibleHeight / 2 - 80;
 
           return Stack(
             fit: StackFit.expand,
@@ -209,32 +269,5 @@ class SplashScreen extends AppBaseView<SplashController> {
         entry.remove();
       });
     });
-  }
-
-  Widget buildSplashSurface({bool animateLogo = false}) {
-    final logo = Image.asset(
-      Assets.icons.agromisLogo.path,
-      width: 160,
-    );
-
-    return Stack(
-      fit: StackFit.expand,
-      children: [
-        Image.asset(
-          Assets.images.splashBg1.path,
-          fit: BoxFit.cover,
-        ),
-        Center(
-          child: animateLogo
-              ? Obx(() => AnimatedOpacity(
-                    duration: const Duration(milliseconds: 800),
-                    curve: Curves.easeInOut,
-                    opacity: _showLogo.value ? 1.0 : 0.0,
-                    child: logo,
-                  ))
-              : logo, // static version (for overlay + login header)
-        ),
-      ],
-    );
   }
 }

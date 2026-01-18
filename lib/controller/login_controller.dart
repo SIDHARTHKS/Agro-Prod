@@ -6,10 +6,8 @@ import '../helper/app_message.dart';
 import '../helper/app_string.dart';
 import '../helper/core/base/app_base_controller.dart';
 import '../helper/core/environment/env.dart';
-import '../helper/date_helper.dart';
 import '../helper/deviceInfo.dart';
 import '../helper/enum.dart';
-import '../model/app_model.dart';
 import '../model/login_model.dart';
 import '../service/auth_service.dart';
 
@@ -62,17 +60,31 @@ class LoginController extends AppBaseController {
   Rxn<EmailResponse> rxMailResponse = Rxn<EmailResponse>();
   Rxn<OtpResponse> rxOtpResponse = Rxn<OtpResponse>();
 
+  final ScrollController scrollController = ScrollController();
+  final RxDouble headerHeight = 211.0.obs; // max height
+
   @override
   Future<void> onInit() async {
     form = GlobalKey<FormState>();
+
     userFocusNode.addListener(() {
       isUserFieldFocused.value =
           (userFocusNode.hasFocus || userController.text.isNotEmpty);
     });
+
     passwordFocusNode.addListener(() {
       isPasswordFieldFocused.value =
           (passwordFocusNode.hasFocus || passwordController.text.isNotEmpty);
     });
+
+    scrollController.addListener(() {
+      final offset = scrollController.offset;
+
+      // 211 = max, 110 = min
+      final h = (211 - offset).clamp(110.0, 211.0);
+      headerHeight.value = h;
+    });
+
     super.onInit();
   }
 

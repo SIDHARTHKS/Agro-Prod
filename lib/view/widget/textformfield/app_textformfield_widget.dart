@@ -9,7 +9,7 @@ import '../common_widget.dart';
 import '../text/app_text.dart';
 
 class TextFormWidget extends StatelessWidget {
-  final String label;
+  final String? label;
   final TextEditingController controller;
   final String? Function(String?)? validator;
   final FocusNode? nextFocusNode;
@@ -48,7 +48,7 @@ class TextFormWidget extends StatelessWidget {
 
   const TextFormWidget({
     super.key,
-    required this.label,
+    this.label,
     required this.controller,
     this.validator,
     this.nextFocusNode,
