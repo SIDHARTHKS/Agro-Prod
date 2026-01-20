@@ -38,7 +38,7 @@ Scaffold appScaffold(
       backgroundColor: bgcolor ?? AppColorHelper().backgroundColor,
       body: SafeArea(
         top: topSafe, // Set to true if you want to avoid notch overlap too
-        bottom: false, //
+        bottom: true, //
         child: PopScope(
           canPop: canpop ?? true,
           onPopInvokedWithResult: (didpop, result) {
@@ -47,37 +47,26 @@ Scaffold appScaffold(
             }
           },
           child: loaderEnabled
-              ? Stack(
-                  children: [
-                    body,
-                    if (showLoader)
-                      Positioned.fill(
-                        child: Container(
-                          color: AppColorHelper().loaderColor,
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              // logoImage(),
-                              loader(),
-                            ],
-                          ),
+              ? LayoutBuilder(
+                  builder: (context, constraints) {
+                    return Stack(
+                      children: [
+                        SizedBox(
+                          height: constraints.maxHeight,
+                          child: body,
                         ),
-                      )
-                  ],
+                        if (showLoader)
+                          Positioned.fill(
+                            child: Container(
+                              color: AppColorHelper().loaderColor,
+                              child: Center(child: loader()),
+                            ),
+                          ),
+                      ],
+                    );
+                  },
                 )
-              : Stack(children: [
-                  Positioned.fill(
-                    child: Container(
-                      color: AppColorHelper().loaderColor,
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          body,
-                        ],
-                      ),
-                    ),
-                  )
-                ]),
+              : body,
         ),
       ),
       drawer: drawer,
@@ -142,24 +131,31 @@ Scaffold appScaffoldImg({
         // 🔥 MAIN CONTENT
         SafeArea(
           top: topSafe,
-          bottom: false,
+          bottom: true,
           child: PopScope(
             canPop: canpop ?? true,
             onPopInvokedWithResult: (didPop, result) {
               if (action != null) action();
             },
             child: loaderEnabled
-                ? Stack(
-                    children: [
-                      body,
-                      if (showLoader)
-                        Positioned.fill(
-                          child: Container(
-                            color: AppColorHelper().loaderColor,
-                            child: Center(child: loader()),
+                ? LayoutBuilder(
+                    builder: (context, constraints) {
+                      return Stack(
+                        children: [
+                          SizedBox(
+                            height: constraints.maxHeight,
+                            child: body,
                           ),
-                        ),
-                    ],
+                          if (showLoader)
+                            Positioned.fill(
+                              child: Container(
+                                color: AppColorHelper().loaderColor,
+                                child: Center(child: loader()),
+                              ),
+                            ),
+                        ],
+                      );
+                    },
                   )
                 : body,
           ),
@@ -272,7 +268,7 @@ AppBar customAppBar(
       padding: const EdgeInsets.only(top: 15.0),
       child: appText(
         title,
-        fontSize: 14,
+        fontSize: 15,
         color: AppColorHelper().primaryTextColor,
         fontWeight: FontWeight.w500,
       ),

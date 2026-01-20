@@ -62,6 +62,9 @@ class LoginController extends AppBaseController {
 
   final ScrollController scrollController = ScrollController();
   final RxDouble headerHeight = 211.0.obs; // max height
+  final RxDouble headerOffset = 0.0.obs;
+
+  final RxDouble bgOffset = 0.0.obs;
 
   @override
   Future<void> onInit() async {
@@ -78,11 +81,7 @@ class LoginController extends AppBaseController {
     });
 
     scrollController.addListener(() {
-      final offset = scrollController.offset;
-
-      // 211 = max, 110 = min
-      final h = (211 - offset).clamp(110.0, 211.0);
-      headerHeight.value = h;
+      bgOffset.value = scrollController.offset;
     });
 
     super.onInit();

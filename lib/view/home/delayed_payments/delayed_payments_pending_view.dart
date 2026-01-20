@@ -33,80 +33,64 @@ class DelayedPaymentsPendingView extends GetView<DelayedPaymentController> {
             }
             return false;
           },
-          child: ListView.builder(
+          child: ListView(
             physics: const AlwaysScrollableScrollPhysics(),
             padding: const EdgeInsets.only(
               bottom: 40 + kBottomNavigationBarHeight,
             ),
-            itemCount: list.length + 6,
-            itemBuilder: (context, index) {
+            children: [
               /// SUMMARY
-              if (index == 0) {
-                return Center(child: _summarySection());
-              }
+              Center(child: _summarySection()),
 
               /// DASHED LINE
-              if (index == 1) {
-                return Column(
-                  children: [
-                    height(20),
-                    DelayedPaymentSharedWidgets().dashedLine(Get.width),
-                    height(25),
-                  ],
-                );
-              }
+              Column(
+                children: [
+                  height(20),
+                  DelayedPaymentSharedWidgets().dashedLine(Get.width),
+                  height(25),
+                ],
+              ),
 
               /// LOCATION SUMMARY
-              if (index == 2) {
-                return _locationSummaryCards();
-              }
+              _locationSummaryCards(),
 
               /// OVERDUE TITLE
-              if (index == 3) {
-                return Column(
-                  children: [
-                    height(20),
-                    Center(
-                      child: DelayedPaymentSharedWidgets()
-                          .heading("Overdue Details"),
-                    ),
-                    height(20),
-                  ],
-                );
-              }
+              Column(
+                children: [
+                  height(20),
+                  Center(
+                    child: DelayedPaymentSharedWidgets()
+                        .heading("Overdue Details"),
+                  ),
+                  height(20),
+                ],
+              ),
 
               /// SEARCH BAR
-              if (index == 4) {
-                return Column(
-                  children: [
-                    DelayedPaymentSharedWidgets()
-                        .searchBar(controller.searchController),
-                    height(23)
-                  ],
-                );
-              }
+              Column(
+                children: [
+                  DelayedPaymentSharedWidgets()
+                      .searchBar(controller.searchController),
+                  height(23),
+                ],
+              ),
+
+              /// BILL CARDS
+              ...list.map(
+                (item) => Padding(
+                  padding: const EdgeInsets.only(bottom: 18),
+                  child: _pendingBillCard(item),
+                ),
+              ),
 
               /// LOADING FOOTER
-              if (index == list.length + 5 &&
-                  controller.pendingVisibleCount.value <
-                      controller.pendingDisplayList.length) {
-                return const Padding(
+              if (controller.pendingVisibleCount.value <
+                  controller.pendingDisplayList.length)
+                const Padding(
                   padding: EdgeInsets.all(16),
                   child: Center(child: CircularProgressIndicator()),
-                );
-              }
-
-              /// BILL CARD
-              final billIndex = index - 5;
-              if (billIndex < 0 || billIndex >= list.length) {
-                return const SizedBox.shrink();
-              }
-
-              return Padding(
-                padding: const EdgeInsets.only(bottom: 18),
-                child: _pendingBillCard(list[billIndex]),
-              );
-            },
+                ),
+            ],
           ),
         ),
       );
@@ -192,7 +176,7 @@ class DelayedPaymentsPendingView extends GetView<DelayedPaymentController> {
     final locations = model.locationDetailsListDtls!;
 
     return Padding(
-      padding: const EdgeInsets.only(left: 22),
+      padding: const EdgeInsets.only(left: 25),
       child: SizedBox(
         height: 90,
         child: ListView.builder(
@@ -266,7 +250,7 @@ class DelayedPaymentsPendingView extends GetView<DelayedPaymentController> {
 
   Widget _pendingBillCard(DelayedPayListDtl data) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 1),
+      padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 1),
       child: Stack(
         clipBehavior: Clip.none,
         children: [

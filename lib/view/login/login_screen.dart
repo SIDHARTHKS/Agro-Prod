@@ -19,9 +19,11 @@ class LoginScreen extends AppBaseView<LoginController> {
   final AuthService _authService = Get.find<AuthService>();
   LoginScreen({super.key});
 
-  static final RxBool _headerArrived = false.obs;
-  static final GlobalKey headerKey = GlobalKey();
-  static const double headerInset = 130;
+  final GlobalKey _userFieldKey = GlobalKey();
+  final GlobalKey _passFieldKey = GlobalKey();
+
+  //
+  //static const double headerInset = 130;
   static final RxBool showHeader = false.obs;
 
   @override
@@ -29,7 +31,7 @@ class LoginScreen extends AppBaseView<LoginController> {
 
   Scaffold _buildScaffold() => appScaffold(
         topSafe: false,
-        resizeToAvoidBottomInset: false, // prevent BG reshape
+        resizeToAvoidBottomInset: true,
         body: appFutureBuilder<void>(
           () => controller.fetchInitData(),
           (context, snapshot) => _buildBody(),
@@ -37,71 +39,81 @@ class LoginScreen extends AppBaseView<LoginController> {
       );
 
   Widget _buildBody() {
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!_headerArrived.value) {
-        _headerArrived.value = true;
-      }
-    });
-
     return SizedBox.expand(
       child: Stack(
-        clipBehavior: Clip.hardEdge,
         children: [
-          // Background
-          Positioned.fill(
-            child: Image.asset(
-              Assets.images.loginBg1.path,
-              fit: BoxFit.cover,
-            ),
-          ),
+          // 🔵 MOVING LOGIN BACKGROUND
+          Obx(() {
+            final offset = controller.bgOffset.value;
 
-          Obx(() => showHeader.value
-              ? Positioned(
-                  top: 0,
-                  left: headerInset,
-                  right: headerInset,
-                  height: controller.headerHeight.value,
-                  child: ClipRRect(
-                    borderRadius: const BorderRadius.only(
-                      bottomLeft: Radius.circular(20),
-                      bottomRight: Radius.circular(20),
-                    ),
-                    child: LoginScreen.buildHeaderSurface(),
+            return Positioned.fill(
+              child: Transform.translate(
+                offset: Offset(0, -offset * 0.8),
+                child: Transform.scale(
+                  scaleX: 1.0,
+                  scaleY: 1.10, // 👈 enlarge vertically by 15%
+                  alignment: Alignment.topCenter,
+                  child: Image.asset(
+                    Assets.images.loginBg1.path,
+                    fit: BoxFit.cover,
                   ),
-                )
-              : const SizedBox()),
+                ),
+              ),
+            );
+          }),
 
-          // Login content
-          SafeArea(
-            child: GestureDetector(
-              onTap: () {
-                FocusScope.of(Get.context!).unfocus();
-              },
-              child: LayoutBuilder(
-                builder: (context, constraints) {
-                  return SingleChildScrollView(
-                    controller: controller.scrollController,
-                    reverse: true,
-                    physics: const ClampingScrollPhysics(),
-                    padding: EdgeInsets.only(
-                      left: 12,
-                      right: 12,
-                      top: 20,
-                      bottom: MediaQuery.of(context).viewInsets.bottom * 0.5,
+          // 🔴 FOREGROUND CONTENT (ONLY ONE HEADER)
+          GestureDetector(
+            onTap: () {
+              FocusScope.of(Get.context!).unfocus();
+            },
+            child: AnimatedPadding(
+              duration: const Duration(milliseconds: 200),
+              curve: Curves.easeOut,
+              padding: EdgeInsets.only(
+                bottom: MediaQuery.of(Get.context!).viewInsets.bottom,
+              ),
+              child: SingleChildScrollView(
+                controller: controller.scrollController,
+                primary: false,
+                physics: const AlwaysScrollableScrollPhysics(),
+                padding: EdgeInsets.only(
+                  left: 12,
+                  right: 12,
+                  bottom: MediaQuery.of(Get.context!).viewInsets.bottom,
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    // Header
+                    Obx(() => AnimatedOpacity(
+                          duration: const Duration(
+                              milliseconds: 2000), // same as splash exit
+                          curve: Curves.easeInOut,
+                          opacity: showHeader.value ? 1.0 : 0.0,
+                          child: Padding(
+                            padding:
+                                const EdgeInsets.symmetric(horizontal: 110),
+                            child: SizedBox(
+                              height: 220,
+                              child: ClipRRect(
+                                borderRadius: const BorderRadius.only(
+                                  bottomLeft: Radius.circular(20),
+                                  bottomRight: Radius.circular(20),
+                                ),
+                                child: LoginScreen.buildHeaderSurface(),
+                              ),
+                            ),
+                          ),
+                        )),
+
+                    SafeArea(
+                      top: false,
+                      child: _mobileView(),
                     ),
-                    child: ConstrainedBox(
-                      constraints: BoxConstraints(
-                        minHeight: constraints.maxHeight -
-                            MediaQuery.of(context).viewInsets.bottom * 0.5,
-                      ),
-                      child: Obx(() => Padding(
-                            padding: EdgeInsets.only(
-                                top: controller.headerHeight.value),
-                            child: _mobileView(),
-                          )),
-                    ),
-                  );
-                },
+                    height(170)
+                  ],
+                ),
               ),
             ),
           ),
@@ -118,7 +130,7 @@ class LoginScreen extends AppBaseView<LoginController> {
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            height(50),
+            height(40),
             appText(
               "Let's Get Started",
               fontSize: 25,
@@ -126,12 +138,15 @@ class LoginScreen extends AppBaseView<LoginController> {
               color: AppColorHelper().primaryTextColor,
             ),
             height(10),
-            const FractionallySizedBox(
-              widthFactor: 0.80, // Takes up 80% of any screen width
-              child: Text(
-                'Login to manage and track your business journey',
-                textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 14),
+            FractionallySizedBox(
+              widthFactor: 0.90,
+              child: Center(
+                child: appText(
+                    'Login to manage and track your business journey',
+                    textAlign: TextAlign.center,
+                    fontSize: 14,
+                    color: AppColorHelper().primaryTextColor,
+                    fontWeight: FontWeight.normal),
               ),
             ),
             height(100),
@@ -144,15 +159,16 @@ class LoginScreen extends AppBaseView<LoginController> {
                   _buildPasswordField(),
 
                   // _showPasswordContainer(),
-                  height(Platform.isIOS ? 55 : 50),
+                  height(Platform.isIOS ? 50 : 45),
                   buttonContainer(
-                    height: 50,
+                    radius: 10,
+                    height: 70,
                     color: AppColorHelper().primaryColor,
                     controller.rxIsLoading.value
                         ? buttonLoader()
                         : appText(
                             login.tr,
-                            fontSize: 16,
+                            fontSize: 18,
                             color: AppColorHelper().textColor,
                             fontWeight: FontWeight.w500,
                           ),
@@ -178,7 +194,8 @@ class LoginScreen extends AppBaseView<LoginController> {
                       });
                     },
                   ),
-                  height(30),
+                  height(20),
+
                   GestureDetector(
                     onTap: () async {
                       // controller.handleForgotPassword().then((success) async {
@@ -219,23 +236,23 @@ class LoginScreen extends AppBaseView<LoginController> {
                         Text(
                           forgetPassworddialogue.tr,
                           style: TextStyle(
-                              fontSize: 13,
+                              fontSize: 14,
                               color: AppColorHelper().primaryTextColor,
-                              fontWeight: FontWeight.w400,
+                              fontWeight: FontWeight.normal,
                               fontFamily: 'Mona Sans'),
                         ),
-                        Positioned(
-                          bottom:
-                              -1, // 👈 increase this value to move the underline lower
-                          child: Container(
-                            height: 1,
-                            width: forgetPassworddialogue.tr.length *
-                                6.5, // adjusts underline width
-                            color: AppColorHelper()
-                                .primaryTextColor
-                                .withValues(alpha: 0.5),
-                          ),
-                        ),
+                        // Positioned(
+                        //   bottom:
+                        //       -1, // 👈 increase this value to move the underline lower
+                        //   child: Container(
+                        //     height: 1,
+                        //     width: forgetPassworddialogue.tr.length *
+                        //         6.5, // adjusts underline width
+                        //     color: AppColorHelper()
+                        //         .primaryTextColor
+                        //         .withValues(alpha: 0.5),
+                        //   ),
+                        // ),
                       ],
                     ),
                   )
@@ -250,84 +267,139 @@ class LoginScreen extends AppBaseView<LoginController> {
   }
 
   Widget _buildUsernameField() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Padding(
-          padding: const EdgeInsets.only(left: 0, bottom: 6),
-          child: appText(
-            username.tr,
-            fontSize: 14,
-            fontWeight: FontWeight.w400,
-            color: AppColorHelper().primaryTextColor,
+    return Focus(
+      onFocusChange: (hasFocus) {
+        final ctx = _userFieldKey.currentContext;
+        if (ctx == null) return;
+
+        if (hasFocus) {
+          // Scroll up a bit when focused
+          Scrollable.ensureVisible(
+            ctx,
+            duration: const Duration(milliseconds: 300),
+            curve: Curves.easeOut,
+            alignment: 0.1,
+          );
+        } else {
+          // Scroll back down when focus is lost
+          Scrollable.ensureVisible(
+            ctx,
+            duration: const Duration(milliseconds: 300),
+            curve: Curves.easeOut,
+            alignment: 0.9,
+          );
+        }
+      },
+      child: Column(
+        key: _userFieldKey,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.only(left: 0, bottom: 10),
+            child: appText(
+              username,
+              fontSize: 13,
+              fontWeight: FontWeight.normal,
+              color: AppColorHelper().primaryTextColor,
+            ),
           ),
-        ),
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-          decoration: BoxDecoration(
-            color: AppColorHelper().cardColor,
-            border: Border.all(
-                color:
-                    AppColorHelper().primaryTextColor.withValues(alpha: 0.2)),
-            borderRadius: BorderRadius.circular(10),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+            decoration: BoxDecoration(
+              color: AppColorHelper().cardColor,
+              border: Border.all(
+                color: AppColorHelper().primaryTextColor.withValues(alpha: 0.2),
+              ),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: TextFormWidget(
+              controller: controller.userController,
+              focusNode: controller.userFocusNode, // only here
+              nextFocusNode: controller.passwordFocusNode,
+              label: null,
+              height: 40,
+            ),
           ),
-          child: TextFormWidget(
-            controller: controller.userController,
-            focusNode: controller.userFocusNode,
-            nextFocusNode: controller.passwordFocusNode,
-            label: null, // ⬅ no inside label
-            height: 40,
-          ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 
   Widget _buildPasswordField() {
     final isFocused = controller.isPasswordFieldFocused.value;
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Padding(
-          padding: const EdgeInsets.only(left: 4, bottom: 6),
-          child: appText(
-            password.tr,
-            fontSize: 14,
-            fontWeight: FontWeight.w400,
-            color: AppColorHelper().primaryTextColor,
+    return Focus(
+      onFocusChange: (hasFocus) async {
+        final ctx = _passFieldKey.currentContext;
+        if (ctx == null) return;
+
+        if (hasFocus) {
+          Scrollable.ensureVisible(
+            ctx,
+            duration: const Duration(milliseconds: 300),
+            curve: Curves.easeOut,
+            alignment: 0.1,
+          );
+        } else {
+          // Close keyboard first
+          FocusScope.of(ctx).unfocus();
+
+          // Give layout a moment to expand back
+          await Future.delayed(const Duration(milliseconds: 120));
+
+          // Then gently scroll back down
+          controller.scrollController.animateTo(
+            0,
+            duration: const Duration(milliseconds: 300),
+            curve: Curves.easeOut,
+          );
+        }
+      },
+      child: Column(
+        key: _passFieldKey,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.only(left: 0, bottom: 10),
+            child: appText(
+              password.tr,
+              fontSize: 13,
+              fontWeight: FontWeight.normal,
+              color: AppColorHelper().primaryTextColor,
+            ),
           ),
-        ),
-        Container(
-          padding: EdgeInsets.only(
-            top: isFocused ? 8.0 : 6.0,
-            bottom: isFocused ? 8.0 : 6.0,
-            left: 10,
-            right: 10,
+          Container(
+            padding: EdgeInsets.only(
+              top: isFocused ? 8.0 : 6.0,
+              bottom: isFocused ? 8.0 : 6.0,
+              left: 10,
+              right: 3,
+            ),
+            decoration: BoxDecoration(
+              color: AppColorHelper().cardColor,
+              border: controller.isPasswordValid.value
+                  ? Border.all(
+                      color: AppColorHelper()
+                          .primaryTextColor
+                          .withValues(alpha: 0.2),
+                    )
+                  : Border.all(color: AppColorHelper().errorBorderColor),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: TextFormWidget(
+              controller: controller.passwordController,
+              focusNode: controller.passwordFocusNode, // only here
+              borderColor: AppColorHelper().transparentColor,
+              label: null,
+              textColor: AppColorHelper().primaryTextColor,
+              height: 40,
+              validator: (value) => value!.trim().isEmpty ? null : null,
+              rxObscureText: controller.rxhidePassword,
+              enableObscureToggle: true,
+            ),
           ),
-          decoration: BoxDecoration(
-            color: AppColorHelper().cardColor,
-            border: controller.isPasswordValid.value
-                ? Border.all(
-                    color: AppColorHelper()
-                        .primaryTextColor
-                        .withValues(alpha: 0.2))
-                : Border.all(color: AppColorHelper().errorBorderColor),
-            borderRadius: BorderRadius.circular(10),
-          ),
-          child: TextFormWidget(
-            controller: controller.passwordController,
-            focusNode: controller.passwordFocusNode,
-            borderColor: AppColorHelper().transparentColor,
-            label: null, // ⬅ no inside label
-            textColor: AppColorHelper().primaryTextColor,
-            height: 40,
-            validator: (value) => value!.trim().isEmpty ? null : null,
-            rxObscureText: controller.rxhidePassword,
-            enableObscureToggle: true,
-          ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 
@@ -337,35 +409,35 @@ class LoginScreen extends AppBaseView<LoginController> {
   }) {
     final logo = Image.asset(
       Assets.icons.agromisLogo.path,
-      width: 93.12,
-      height: 61.92,
     );
 
-    return Stack(
-      fit: StackFit.expand,
-      children: [
-        Container(
-          color: AppColorHelper().secondaryTextColor,
-          child: Image.asset(
-            Assets.images.loginTeaBg.path,
-            fit: BoxFit.cover,
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: AppColorHelper().secondaryTextColor,
+        image: DecorationImage(
+          image: AssetImage(Assets.images.loginTeaBg.path),
+          fit: BoxFit.cover, // fills the card completely
+        ),
+      ),
+      child: Stack(
+        fit: StackFit.expand,
+        children: [
+          Positioned(
+            top: 90,
+            bottom: 20,
+            left: 35,
+            right: 35,
+            child: animateLogo && showLogo != null
+                ? Obx(() => AnimatedOpacity(
+                      duration: const Duration(milliseconds: 800),
+                      curve: Curves.easeInOut,
+                      opacity: showLogo.value ? 1.0 : 0.0,
+                      child: logo,
+                    ))
+                : logo,
           ),
-        ),
-        Positioned(
-          top: 90,
-          bottom: 17,
-          left: 35,
-          right: 35,
-          child: animateLogo && showLogo != null
-              ? Obx(() => AnimatedOpacity(
-                    duration: const Duration(milliseconds: 800),
-                    curve: Curves.easeInOut,
-                    opacity: showLogo.value ? 1.0 : 0.0,
-                    child: logo,
-                  ))
-              : logo,
-        ),
-      ],
+        ],
+      ),
     );
   }
 

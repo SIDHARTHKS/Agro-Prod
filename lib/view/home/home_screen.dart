@@ -36,7 +36,7 @@ class HomeScreen extends AppBaseView<HomeController> {
         color: AppColorHelper().cardColor,
         child: SafeArea(
           child: Container(
-              height: 45,
+              height: 50,
               color: AppColorHelper().cardColor,
               child: Row(
                 children:
@@ -68,12 +68,12 @@ class HomeScreen extends AppBaseView<HomeController> {
       },
       child: Container(
         margin: const EdgeInsets.only(top: 10),
-        height: 50,
-        width: 50,
+        height: 40,
+        width: 40,
         color: AppColorHelper().cardColor,
         child: Image.asset(
           item,
-          scale: 3,
+          scale: 1,
           color: selected ? AppColorHelper().iconColor : null,
         ),
       ),

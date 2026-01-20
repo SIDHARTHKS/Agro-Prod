@@ -40,19 +40,11 @@ class SplashScreen extends AppBaseView<SplashController> {
             appLog('return ${snapshot.data}');
             if (snapshot.connectionState == ConnectionState.waiting) {
               // While loading, show loader
-              return Obx(() => Stack(
-                    children: [
-                      AnimatedPositioned(
-                        duration: const Duration(milliseconds: 5000),
-                        curve: Curves.easeInOut,
-                        top: _exitAnim.value ? -Get.height * 0.6 : 0,
-                        left: _exitAnim.value ? Get.width * 0.25 : 0,
-                        right: _exitAnim.value ? Get.width * 0.25 : 0,
-                        bottom: _exitAnim.value ? null : 0,
-                        child: _loaderWidget(),
-                      ),
-                    ],
-                  ));
+              return Stack(
+                children: [
+                  _loaderWidget(), // static splash, never moves
+                ],
+              );
             } else if (snapshot.hasError) {
               return Center(child: Text('Error: ${snapshot.error}'));
             } else if (snapshot.hasData) {
@@ -77,6 +69,7 @@ class SplashScreen extends AppBaseView<SplashController> {
                   if (snapshot.data == 1) {
                     navigateToAndRemoveAll(homePageRoute, arguments: arguments);
                   } else {
+                    _exitAnim.value = true;
                     _playExitOverlay(context, () {
                       navigateToAndRemoveAll(loginPageRoute);
                     });
@@ -96,61 +89,34 @@ class SplashScreen extends AppBaseView<SplashController> {
   Widget _loaderWidget() => Stack(
         fit: StackFit.expand,
         children: [
-          //first image
-          Image.asset(
-            Assets.images.splashBg1.path,
-            fit: BoxFit.cover,
-          ),
-
-          // second image fade
-          AnimatedOpacity(
-            duration: const Duration(milliseconds: 1000),
-            curve: Curves.easeInOut,
-            opacity: controller.rxShowSecondImage.value ? 1.0 : 0.0,
-            child: Image.asset(
-              Assets.icons.agromisLogo.path,
-              fit: BoxFit.cover,
+          Positioned.fill(
+            child: Transform.translate(
+              offset: const Offset(0, -4),
+              child: Transform.scale(
+                scale: 1.15,
+                alignment: Alignment.topCenter,
+                child: Image.asset(
+                  Assets.images.splashBg1.path,
+                  fit: BoxFit.cover,
+                ),
+              ),
             ),
           ),
-
-          // Align(
-          //   alignment: const Alignment(0, -0.1),
-          //   child: AnimatedOpacity(
-          //     duration: const Duration(milliseconds: 1000),
-          //     curve: Curves.easeInOut,
-          //     opacity: controller.rxShowSecondImage.value ? 1.0 : 0.0,
-          //     child: muzirisLogo(),
-          //   ),
-          // ),
-
-          // Align(
-          //   alignment: const Alignment(0, 1),
-          //   child: SizedBox(
-          //     height: Get.height * 0.48,
-          //     child: SlideTransition(
-          //       position: controller.textSlide,
-          //       child: Column(
-          //         mainAxisSize: MainAxisSize.max,
-          //         crossAxisAlignment: CrossAxisAlignment.center,
-          //         children: [
-          //           appText(
-          //             "Initializing your workspace",
-          //             fontWeight: FontWeight.w500,
-          //             fontSize: 14,
-          //             textAlign: TextAlign.center,
-          //           ),
-          //           height(4),
-          //           appText(
-          //             "Please wait...",
-          //             fontWeight: FontWeight.w800,
-          //             fontSize: 16,
-          //             textAlign: TextAlign.center,
-          //           ),
-          //         ],
-          //       ),
-          //     ),
-          //   ),
-          // ),
+          Obx(() => AnimatedAlign(
+                duration: const Duration(milliseconds: 1200),
+                curve: Curves.easeOutCubic,
+                alignment: _showLogo.value
+                    ? const Alignment(0, -0.05)
+                    : const Alignment(0, 1.2),
+                child: AnimatedOpacity(
+                  duration: const Duration(milliseconds: 800),
+                  opacity: _showLogo.value ? 1.0 : 0.0,
+                  child: Image.asset(
+                    Assets.icons.agromisLogo.path,
+                    width: 160,
+                  ),
+                ),
+              )),
         ],
       );
 
@@ -189,44 +155,49 @@ class SplashScreen extends AppBaseView<SplashController> {
     route.binding?.dependencies();
     final loginPage = route.page();
 
+    LoginScreen.showHeader.value = false;
+
     entry = OverlayEntry(
       builder: (_) => TweenAnimationBuilder<double>(
-        duration: const Duration(milliseconds: 2200),
+        duration: const Duration(milliseconds: 2000),
         tween: Tween(begin: 0.0, end: 1.0),
         curve: Curves.easeInOutQuart,
         builder: (context, t, child) {
-          // Login header geometry
-          const double headerInset = 130;
-          const double headerVisibleHeight = 110; // 220 * 0.5
+          const double headerInset = 120;
+          const double visibleHeaderHeight = 220; // your new taller header
 
-          // Animate height perfectly (no scale drift)
-          final double bgHeight =
-              lerpDouble(Get.height, headerVisibleHeight, t)!;
-
-          // Animate width smoothly
+          final double cardHeight =
+              lerpDouble(Get.height, visibleHeaderHeight, t)!;
           final double inset = lerpDouble(0.0, headerInset, t)!;
 
-          // Logo path (moves, never scales)
           final double startLogoY = Get.height * 0.5 - 80;
-          const double endLogoY = headerVisibleHeight / 2 - 80;
+          const double endLogoY = 110;
 
           return Stack(
             fit: StackFit.expand,
             children: [
-              Container(color: AppColorHelper().backgroundColor),
-
-              // Login sliding from bottom (no header yet)
-              Transform.translate(
-                offset: Offset(0, Get.height * (1 - t)),
-                child: loginPage,
+              // 🔒 HARD MASK – hides the real SplashScreen completely
+              Positioned.fill(
+                child: Container(
+                  color: AppColorHelper().backgroundColor,
+                ),
               ),
 
-              // Splash background morphs into header
+              // 🔴 LOGIN PAGE SLIDES IN
+              Opacity(
+                opacity: t,
+                child: Transform.translate(
+                  offset: Offset(0, Get.height * (1 - t)),
+                  child: loginPage,
+                ),
+              ),
+
+              // 🟣 SHRINKING FOREGROUND CARD (ONLY PLACE WHERE SPLASH EXISTS)
               Positioned(
                 top: 0,
                 left: inset,
                 right: inset,
-                height: bgHeight,
+                height: cardHeight,
                 child: ClipRRect(
                   borderRadius: const BorderRadius.only(
                     bottomLeft: Radius.circular(20),
@@ -239,7 +210,7 @@ class SplashScreen extends AppBaseView<SplashController> {
                 ),
               ),
 
-              // Logo moves upward, never scales
+              // 🟡 LOGO RIDES WITH THE CARD
               Positioned(
                 top: lerpDouble(startLogoY, endLogoY, t)!,
                 left: 0,
@@ -247,7 +218,7 @@ class SplashScreen extends AppBaseView<SplashController> {
                 child: Center(
                   child: Image.asset(
                     Assets.icons.agromisLogo.path,
-                    width: 160,
+                    width: lerpDouble(160, 95, t),
                   ),
                 ),
               ),
@@ -260,10 +231,8 @@ class SplashScreen extends AppBaseView<SplashController> {
     overlay.insert(entry);
 
     Future.delayed(const Duration(milliseconds: 2200), () {
-      // Push Login (without header)
       onDone();
 
-      // In the same frame: show Login header & remove overlay
       WidgetsBinding.instance.addPostFrameCallback((_) {
         LoginScreen.showHeader.value = true;
         entry.remove();

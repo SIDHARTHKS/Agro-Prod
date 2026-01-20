@@ -103,12 +103,13 @@ class TextFormWidget extends StatelessWidget {
         child: TextFormField(
           showCursor: showcursor,
           obscureText: obscure,
+          obscuringCharacter: '*',
           enabled: isEnabled,
           readOnly: readOnly,
           focusNode: focusNode,
           controller: controller,
-          maxLines: maxLines,
-          minLines: minLines,
+          maxLines: obscure ? 1 : maxLines,
+          minLines: obscure ? 1 : minLines,
           maxLength: maxLength,
           decoration: _normalFieldDecoration(localObscure),
           validator: validator,
@@ -160,7 +161,7 @@ class TextFormWidget extends StatelessWidget {
       return IconButton(
         icon: Icon(
           localObscure.value ? Icons.visibility : Icons.visibility_off,
-          color: AppColorHelper().primaryTextColor.withValues(alpha: 0.6),
+          color: AppColorHelper().primaryTextColor.withValues(alpha: 0.9),
           size: 20,
         ),
         onPressed: () {
