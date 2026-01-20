@@ -29,6 +29,13 @@ class AppBaseService {
   }) =>
       '/api/TropicalMobAPI/v1/BillSummary/DelayedPayBillDetails?token=$token';
 
+  /*----------------------USER LOGIN -------------------*/
+
+  String getUserLoginApiEndpoint({
+    required String token,
+  }) =>
+      '/api/TropicalMobAPI/v1/UserLogin/Login?token=$token';
+
   /* -------------------- HEADERS -------------------- */
 
   /// Generic headers

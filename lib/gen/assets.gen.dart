@@ -52,6 +52,10 @@ class $AssetsIconsGen {
   AssetGenImage get searchIcon =>
       const AssetGenImage('assets/icons/SearchIcon.png');
 
+  /// File path: assets/icons/agromisLogo.png
+  AssetGenImage get agromisLogo =>
+      const AssetGenImage('assets/icons/agromisLogo.png');
+
   /// File path: assets/icons/arrowright.png
   AssetGenImage get arrowright =>
       const AssetGenImage('assets/icons/arrowright.png');
@@ -118,6 +122,7 @@ class $AssetsIconsGen {
         clockIcon,
         filterBtn,
         searchIcon,
+        agromisLogo,
         arrowright,
         arrowup,
         arrowupgreen,
@@ -144,9 +149,17 @@ class $AssetsImagesGen {
   /// File path: assets/images/loginBg.png
   AssetGenImage get loginBg => const AssetGenImage('assets/images/loginBg.png');
 
+  /// File path: assets/images/loginBg1.png
+  AssetGenImage get loginBg1 =>
+      const AssetGenImage('assets/images/loginBg1.png');
+
   /// File path: assets/images/loginBg2.png
   AssetGenImage get loginBg2 =>
       const AssetGenImage('assets/images/loginBg2.png');
+
+  /// File path: assets/images/loginTeaBg.png
+  AssetGenImage get loginTeaBg =>
+      const AssetGenImage('assets/images/loginTeaBg.png');
 
   /// File path: assets/images/muziris.png
   AssetGenImage get muziris => const AssetGenImage('assets/images/muziris.png');
@@ -164,8 +177,16 @@ class $AssetsImagesGen {
       const AssetGenImage('assets/images/splashBg2.png');
 
   /// List of all assets
-  List<AssetGenImage> get values =>
-      [loginBg, loginBg2, muziris, muziriswhite, splashBg1, splashBg2];
+  List<AssetGenImage> get values => [
+        loginBg,
+        loginBg1,
+        loginBg2,
+        loginTeaBg,
+        muziris,
+        muziriswhite,
+        splashBg1,
+        splashBg2
+      ];
 }
 
 class Assets {

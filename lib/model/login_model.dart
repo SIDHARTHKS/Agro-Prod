@@ -52,6 +52,33 @@ class LoginResponse {
 
 //
 
+UserLoginRequest userLoginRequesFromJson(String str) =>
+    UserLoginRequest.fromJson(json.decode(str));
+
+String userLoginRequesToJson(UserLoginRequest data) =>
+    json.encode(data.toJson());
+
+class UserLoginRequest {
+  String? userCode;
+  String? password;
+
+  UserLoginRequest({
+    this.userCode,
+    this.password,
+  });
+
+  factory UserLoginRequest.fromJson(Map<String, dynamic> json) =>
+      UserLoginRequest(
+        userCode: json["UserCode"],
+        password: json["Password"],
+      );
+
+  Map<String, dynamic> toJson() => {
+        "UserCode": userCode,
+        "Password": password,
+      };
+}
+
 UserLoginResponse userLoginResponseFromJson(String str) =>
     UserLoginResponse.fromJson(json.decode(str));
 
@@ -59,67 +86,35 @@ String userLoginResponseToJson(UserLoginResponse data) =>
     json.encode(data.toJson());
 
 class UserLoginResponse {
+  int? userId;
   String? userName;
-  String? userCode;
-  String? userId;
-  String? userValidYn;
-  int? employeeId;
-  String? employeeCode;
-  String? employeeName;
-  int? locationId;
-  String? locationName;
-  int? companyId;
-  int? branchId;
-  String? userImgUrl;
-  String? employeeType;
+  String? defaultCompCode;
+  String? defaultBranchCode;
+  int? defaultLocationId;
 
   UserLoginResponse({
-    this.userName,
-    this.userCode,
     this.userId,
-    this.userValidYn,
-    this.employeeId,
-    this.employeeCode,
-    this.employeeName,
-    this.locationId,
-    this.locationName,
-    this.companyId,
-    this.branchId,
-    this.userImgUrl,
-    this.employeeType,
+    this.userName,
+    this.defaultCompCode,
+    this.defaultBranchCode,
+    this.defaultLocationId,
   });
 
   factory UserLoginResponse.fromJson(Map<String, dynamic> json) =>
       UserLoginResponse(
-        userName: json["userName"],
-        userCode: json["userCode"],
-        userId: json["userID"],
-        userValidYn: json["userValidYN"],
-        employeeId: json["employeeID"],
-        employeeCode: json["employeeCode"],
-        employeeName: json["employeeName"],
-        locationId: json["locationID"],
-        locationName: json["locationName"],
-        companyId: json["companyID"],
-        branchId: json["branchID"],
-        userImgUrl: json["userImgUrl"],
-        employeeType: json["employeeType"],
+        userId: json["UserID"],
+        userName: json["UserName"],
+        defaultCompCode: json["DefaultCompCode"],
+        defaultBranchCode: json["DefaultBranchCode"],
+        defaultLocationId: json["DefaultLocationID"],
       );
 
   Map<String, dynamic> toJson() => {
-        "userName": userName,
-        "userCode": userCode,
-        "userID": userId,
-        "userValidYN": userValidYn,
-        "employeeID": employeeId,
-        "employeeCode": employeeCode,
-        "employeeName": employeeName,
-        "locationID": locationId,
-        "locationName": locationName,
-        "companyID": companyId,
-        "branchID": branchId,
-        "userImgUrl": userImgUrl,
-        "employeeType": employeeType,
+        "UserID": userId,
+        "UserName": userName,
+        "DefaultCompCode": defaultCompCode,
+        "DefaultBranchCode": defaultBranchCode,
+        "DefaultLocationID": defaultLocationId,
       };
 }
 

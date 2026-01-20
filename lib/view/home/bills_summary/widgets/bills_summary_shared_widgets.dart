@@ -22,7 +22,7 @@ class BillsSummarySharedWidgets {
             ),
           ),
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 12),
+            padding: const EdgeInsets.symmetric(horizontal: 20),
             child: appText(
               title,
               fontSize: 15,
@@ -47,7 +47,7 @@ class BillsSummarySharedWidgets {
     bool inset = true,
     Color? dashcolor,
   }) {
-    const horizontalPadding = 22.0;
+    const horizontalPadding = 25.0;
 
     final usableWidth = inset ? maxWidth - (horizontalPadding * 2) : maxWidth;
 
@@ -189,8 +189,8 @@ class BillsSummarySharedWidgets {
             child: Row(
               children: [
                 Expanded(
-                    child: _infoColumn(
-                        "Transaction Type", data.transactionType ?? '')),
+                    child:
+                        _infoColumn("Trans Type", data.transactionType ?? '')),
                 Expanded(
                     child:
                         _infoColumn("Committed On", data.committedDate ?? '')),
@@ -269,7 +269,7 @@ class BillsSummarySharedWidgets {
 
   Widget invoiceSummary(BillSummaryModel data) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
+      padding: const EdgeInsets.symmetric(horizontal: 25),
       child: DottedBorder(
         borderType: BorderType.RRect,
         color: AppColorHelper().infoBorderYellow,
@@ -343,7 +343,7 @@ class BillsSummarySharedWidgets {
 
   Widget billDetailsSheet(BillSummaryModel data) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
+      padding: const EdgeInsets.symmetric(horizontal: 25),
       child: Container(
         padding: const EdgeInsets.all(18),
         decoration: BoxDecoration(

@@ -19,34 +19,45 @@ class DelayedPaymentsView extends AppBaseView<DelayedPaymentController> {
         backgroundImage: AssetImage(Assets.images.loginBg.path),
         canpop: true,
         extendBodyBehindAppBar: false,
-        resizeToAvoidBottomInset: true,
+        resizeToAvoidBottomInset: false, // IMPORTANT
         topSafe: true,
         body: _buildBody(),
       );
 
   Widget _buildBody() {
-    return Column(
-      children: [
-        height(16),
-        Padding(
-          padding: const EdgeInsets.symmetric(
-            horizontal: 80,
-          ),
-          child: Obx(() => _tabSwitch()),
+    return GestureDetector(
+      behavior: HitTestBehavior.translucent,
+      onTap: () {
+        FocusManager.instance.primaryFocus?.unfocus();
+      },
+      child: AnimatedPadding(
+        duration: const Duration(milliseconds: 250),
+        curve: Curves.easeOut,
+        padding: EdgeInsets.only(
+          bottom: MediaQuery.of(Get.context!).viewInsets.bottom,
         ),
-        height(10),
-        Expanded(
-          child: Obx(() {
-            return IndexedStack(
-              index: controller.isPending.value ? 0 : 1,
-              children: const [
-                DelayedPaymentsPendingView(),
-                DelayedPaymentsSettledView(),
-              ],
-            );
-          }),
+        child: Column(
+          children: [
+            height(16),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 80),
+              child: Obx(() => _tabSwitch()),
+            ),
+            height(10),
+            Expanded(
+              child: Obx(() {
+                return IndexedStack(
+                  index: controller.isPending.value ? 0 : 1,
+                  children: const [
+                    DelayedPaymentsPendingView(),
+                    DelayedPaymentsSettledView(),
+                  ],
+                );
+              }),
+            ),
+          ],
         ),
-      ],
+      ),
     );
   }
 

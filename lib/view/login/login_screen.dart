@@ -1,5 +1,5 @@
 import 'dart:io';
-import 'package:agro/view/login/bottomsheet/forget_password_bottomsheet.dart';
+import 'package:agro/helper/app_message.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../controller/login_controller.dart';
@@ -12,93 +12,144 @@ import '../../helper/route.dart';
 import '../../helper/sizer.dart';
 import '../../service/auth_service.dart';
 import '../widget/common_widget.dart';
+import '../splash/splash_screen.dart';
 import '../widget/textformfield/app_textformfield_widget.dart';
 
 class LoginScreen extends AppBaseView<LoginController> {
   final AuthService _authService = Get.find<AuthService>();
   LoginScreen({super.key});
 
+  final GlobalKey _userFieldKey = GlobalKey();
+  final GlobalKey _passFieldKey = GlobalKey();
+
+  //
+  //static const double headerInset = 130;
+  static final RxBool showHeader = true.obs;
+
   @override
   Widget buildView() => _buildScaffold();
 
   Scaffold _buildScaffold() => appScaffold(
         topSafe: false,
-        resizeToAvoidBottomInset: false, // prevent BG reshape
+        resizeToAvoidBottomInset: true,
         body: appFutureBuilder<void>(
           () => controller.fetchInitData(),
           (context, snapshot) => _buildBody(),
         ),
       );
 
-  Widget _buildBody() => Stack(
+  Widget _buildBody() {
+    return SizedBox.expand(
+      child: Stack(
         children: [
-          // 1️⃣ Fixed background
-          Positioned.fill(
-            child: Image.asset(
-              Assets.images.loginBg.path,
-              fit: BoxFit.cover,
-            ),
-          ),
+          // 🔵 MOVING LOGIN BACKGROUND
+          Obx(() {
+            final offset = controller.bgOffset.value;
 
-          // 2️⃣ Scrollable login form
-          SafeArea(
-            child: GestureDetector(
-              onTap: () {
-                FocusScope.of(Get.context!).unfocus();
-              },
-              child: LayoutBuilder(
-                builder: (context, constraints) {
-                  return SingleChildScrollView(
-                    reverse: true,
-                    physics: const ClampingScrollPhysics(),
-                    padding: EdgeInsets.only(
-                      left: 12,
-                      right: 12,
-                      top: 20,
-                      bottom: MediaQuery.of(context).viewInsets.bottom *
-                          0.5, // ✅ only half scroll
+            return Positioned.fill(
+              child: Transform.translate(
+                offset: Offset(0, -offset * 0.8),
+                child: Transform.scale(
+                  scaleX: 1.0,
+                  scaleY: 1.10, // 👈 enlarge vertically by 15%
+                  alignment: Alignment.topCenter,
+                  child: Image.asset(
+                    Assets.images.loginBg1.path,
+                    fit: BoxFit.cover,
+                  ),
+                ),
+              ),
+            );
+          }),
+
+          // 🔴 FOREGROUND CONTENT (ONLY ONE HEADER)
+          GestureDetector(
+            onTap: () {
+              FocusScope.of(Get.context!).unfocus();
+            },
+            child: AnimatedPadding(
+              duration: const Duration(milliseconds: 200),
+              curve: Curves.easeOut,
+              padding: EdgeInsets.only(
+                bottom: MediaQuery.of(Get.context!).viewInsets.bottom,
+              ),
+              child: SingleChildScrollView(
+                controller: controller.scrollController,
+                primary: false,
+                physics: const AlwaysScrollableScrollPhysics(),
+                padding: EdgeInsets.only(
+                  left: 12,
+                  right: 12,
+                  bottom: MediaQuery.of(Get.context!).viewInsets.bottom,
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    // Header
+                    Obx(() => AnimatedOpacity(
+                          duration: const Duration(
+                              milliseconds: 2000), // same as splash exit
+                          curve: Curves.easeInOut,
+                          opacity: showHeader.value ? 1.0 : 0.0,
+                          child: Padding(
+                            padding:
+                                const EdgeInsets.symmetric(horizontal: 110),
+                            child: SizedBox(
+                              height: 220,
+                              child: ClipRRect(
+                                borderRadius: const BorderRadius.only(
+                                  bottomLeft: Radius.circular(20),
+                                  bottomRight: Radius.circular(20),
+                                ),
+                                child: LoginScreen.buildHeaderSurface(),
+                              ),
+                            ),
+                          ),
+                        )),
+
+                    SafeArea(
+                      top: false,
+                      child: _mobileView(),
                     ),
-                    child: ConstrainedBox(
-                      constraints: BoxConstraints(
-                        minHeight: constraints.maxHeight -
-                            MediaQuery.of(context).viewInsets.bottom * 0.5,
-                      ),
-                      child: Center(
-                        child: _mobileView(),
-                      ),
-                    ),
-                  );
-                },
+                    height(170)
+                  ],
+                ),
               ),
             ),
           ),
         ],
-      );
+      ),
+    );
+  }
 
   Padding _mobileView() {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 5.0, vertical: 20),
+      padding: const EdgeInsets.symmetric(horizontal: 35, vertical: 20),
       child: Obx(() {
         return Column(
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            height(Platform.isIOS ? 150 : 160), // ✅ adjust subtle difference
+            height(40),
             appText(
-              "HELLO",
-              fontSize: 28,
-              fontWeight: FontWeight.w400,
+              "Let's Get Started",
+              fontSize: 25,
+              fontWeight: FontWeight.w600,
               color: AppColorHelper().primaryTextColor,
             ),
             height(10),
-            appText(
-              "LETS GET STARTED",
-              textAlign: TextAlign.center,
-              fontSize: 18,
-              fontWeight: FontWeight.w400,
-              color: AppColorHelper().primaryTextColor,
+            FractionallySizedBox(
+              widthFactor: 0.90,
+              child: Center(
+                child: appText(
+                    'Login to manage and track your business journey',
+                    textAlign: TextAlign.center,
+                    fontSize: 14,
+                    color: AppColorHelper().primaryTextColor,
+                    fontWeight: FontWeight.normal),
+              ),
             ),
-            height(80),
+            height(100),
             Form(
               key: controller.form,
               child: Column(
@@ -106,25 +157,23 @@ class LoginScreen extends AppBaseView<LoginController> {
                   _buildUsernameField(),
                   height(22),
                   _buildPasswordField(),
-                  height(15),
-                  _showPasswordContainer(),
-                  height(Platform.isIOS ? 75 : 70),
+
+                  // _showPasswordContainer(),
+                  height(Platform.isIOS ? 50 : 45),
                   buttonContainer(
-                    height: 50,
+                    radius: 10,
+                    height: 70,
                     color: AppColorHelper().primaryColor,
                     controller.rxIsLoading.value
                         ? buttonLoader()
                         : appText(
                             login.tr,
-                            fontSize: 16,
+                            fontSize: 18,
                             color: AppColorHelper().textColor,
                             fontWeight: FontWeight.w500,
                           ),
                     //           onPressed: () {
-                    //   showErrorSnackbar(
-                    //       title: "Invalid Credentials",
-                    //       message:
-                    //           "Login failed. Please check your username and password.");
+
                     // }
                     onPressed: () async {
                       if (controller.rxIsLoading.value) return;
@@ -136,11 +185,17 @@ class LoginScreen extends AppBaseView<LoginController> {
                               homePageRoute,
                             );
                           });
+                        } else {
+                          showErrorSnackbar(
+                              title: "Invalid Credentials",
+                              message:
+                                  "Login failed. Please check your username and password.");
                         }
                       });
                     },
                   ),
-                  height(30),
+                  height(20),
+
                   GestureDetector(
                     onTap: () async {
                       // controller.handleForgotPassword().then((success) async {
@@ -178,32 +233,26 @@ class LoginScreen extends AppBaseView<LoginController> {
                       clipBehavior: Clip.none,
                       alignment: Alignment.centerLeft,
                       children: [
-                        // appText(
-                        //   forgetPassworddialogue.tr,
-                        //   fontSize: 12,
-                        //   fontWeight: FontWeight.w400,
-                        //   color: AppColorHelper().primaryTextColor,
-                        // ),
                         Text(
                           forgetPassworddialogue.tr,
                           style: TextStyle(
-                              fontSize: 13,
+                              fontSize: 14,
                               color: AppColorHelper().primaryTextColor,
-                              fontWeight: FontWeight.w400,
+                              fontWeight: FontWeight.normal,
                               fontFamily: 'Mona Sans'),
                         ),
-                        Positioned(
-                          bottom:
-                              -1, // 👈 increase this value to move the underline lower
-                          child: Container(
-                            height: 1,
-                            width: forgetPassworddialogue.tr.length *
-                                6.5, // adjusts underline width
-                            color: AppColorHelper()
-                                .primaryTextColor
-                                .withValues(alpha: 0.5),
-                          ),
-                        ),
+                        // Positioned(
+                        //   bottom:
+                        //       -1, // 👈 increase this value to move the underline lower
+                        //   child: Container(
+                        //     height: 1,
+                        //     width: forgetPassworddialogue.tr.length *
+                        //         6.5, // adjusts underline width
+                        //     color: AppColorHelper()
+                        //         .primaryTextColor
+                        //         .withValues(alpha: 0.5),
+                        //   ),
+                        // ),
                       ],
                     ),
                   )
@@ -217,68 +266,59 @@ class LoginScreen extends AppBaseView<LoginController> {
     );
   }
 
-  Row _showPasswordContainer() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.end,
-      children: [
-        GestureDetector(
-          onTap: () {
-            controller.onShowPassChange();
-          },
-          child: SizedBox(
-            child: Row(
-              children: [
-                _buildShowPassSwitch(() => controller.onShowPassChange()),
-                width(7),
-                SizedBox(
-                  child: appText("SHOW PASSWORD",
-                      color: AppColorHelper().primaryTextColor,
-                      fontSize: 12,
-                      fontWeight: FontWeight.w400),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
   Widget _buildUsernameField() {
-    final isFocused = controller.isUserFieldFocused.value;
-    return Container(
-      padding: EdgeInsets.only(
-          top: isFocused ? 20.0 : 12.0,
-          bottom: isFocused ? 2.0 : 10,
-          left: 10,
-          right: 10),
-      decoration: BoxDecoration(
-          color: AppColorHelper().cardColor,
-          border: controller.isUsernameValid.value
-              ? Border.all(color: AppColorHelper().transparentColor)
-              : Border.all(color: AppColorHelper().errorBorderColor),
-          borderRadius: BorderRadius.circular(4)),
+    return Focus(
+      onFocusChange: (hasFocus) {
+        final ctx = _userFieldKey.currentContext;
+        if (ctx == null) return;
+
+        if (hasFocus) {
+          // Scroll up a bit when focused
+          Scrollable.ensureVisible(
+            ctx,
+            duration: const Duration(milliseconds: 300),
+            curve: Curves.easeOut,
+            alignment: 0.1,
+          );
+        } else {
+          // Scroll back down when focus is lost
+          Scrollable.ensureVisible(
+            ctx,
+            duration: const Duration(milliseconds: 300),
+            curve: Curves.easeOut,
+            alignment: 0.9,
+          );
+        }
+      },
       child: Column(
+        key: _userFieldKey,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Padding(
-          //   padding: const EdgeInsets.only(left: 4),
-          //   child: appText(
-          //     username.tr,
-          //     fontSize: 12,
-          //     fontWeight: FontWeight.w400,
-          //     color: AppColorHelper().primaryTextColor.withValues(alpha: 0.7),
-          //   ),
-          // ),
-          TextFormWidget(
-            height: 40,
-            focusNode: controller.userFocusNode,
-            controller: controller.userController,
-            borderColor: AppColorHelper().transparentColor,
-            textColor: AppColorHelper().primaryTextColor,
-            label: username.tr,
-            validator: (value) => value!.trim().isEmpty ? null : null,
-            nextFocusNode: controller.passwordFocusNode,
+          Padding(
+            padding: const EdgeInsets.only(left: 0, bottom: 10),
+            child: appText(
+              username,
+              fontSize: 13,
+              fontWeight: FontWeight.normal,
+              color: AppColorHelper().primaryTextColor,
+            ),
+          ),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+            decoration: BoxDecoration(
+              color: AppColorHelper().cardColor,
+              border: Border.all(
+                color: AppColorHelper().primaryTextColor.withValues(alpha: 0.2),
+              ),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: TextFormWidget(
+              controller: controller.userController,
+              focusNode: controller.userFocusNode, // only here
+              nextFocusNode: controller.passwordFocusNode,
+              label: null,
+              height: 40,
+            ),
           ),
         ],
       ),
@@ -287,70 +327,149 @@ class LoginScreen extends AppBaseView<LoginController> {
 
   Widget _buildPasswordField() {
     final isFocused = controller.isPasswordFieldFocused.value;
-    return Container(
-        padding: EdgeInsets.only(
-            top: isFocused ? 20.0 : 12.0,
-            bottom: isFocused ? 2.0 : 10,
-            left: 10,
-            right: 10),
-        decoration: BoxDecoration(
-            color: AppColorHelper().cardColor,
-            border: controller.isPasswordValid.value
-                ? Border.all(color: AppColorHelper().transparentColor)
-                : Border.all(color: AppColorHelper().errorBorderColor),
-            borderRadius: BorderRadius.circular(4)),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // appText(
-            //   password.tr,
-            //   fontSize: 12,
-            //   fontWeight: FontWeight.w400,
-            //   color: AppColorHelper().primaryTextColor.withValues(alpha: 0.7),
-            // ),
-            TextFormWidget(
+
+    return Focus(
+      onFocusChange: (hasFocus) async {
+        final ctx = _passFieldKey.currentContext;
+        if (ctx == null) return;
+
+        if (hasFocus) {
+          Scrollable.ensureVisible(
+            ctx,
+            duration: const Duration(milliseconds: 300),
+            curve: Curves.easeOut,
+            alignment: 0.1,
+          );
+        } else {
+          // Close keyboard first
+          FocusScope.of(ctx).unfocus();
+
+          // Give layout a moment to expand back
+          await Future.delayed(const Duration(milliseconds: 120));
+
+          // Then gently scroll back down
+          controller.scrollController.animateTo(
+            0,
+            duration: const Duration(milliseconds: 300),
+            curve: Curves.easeOut,
+          );
+        }
+      },
+      child: Column(
+        key: _passFieldKey,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.only(left: 0, bottom: 10),
+            child: appText(
+              password.tr,
+              fontSize: 13,
+              fontWeight: FontWeight.normal,
+              color: AppColorHelper().primaryTextColor,
+            ),
+          ),
+          Container(
+            padding: EdgeInsets.only(
+              top: isFocused ? 8.0 : 6.0,
+              bottom: isFocused ? 8.0 : 6.0,
+              left: 10,
+              right: 3,
+            ),
+            decoration: BoxDecoration(
+              color: AppColorHelper().cardColor,
+              border: controller.isPasswordValid.value
+                  ? Border.all(
+                      color: AppColorHelper()
+                          .primaryTextColor
+                          .withValues(alpha: 0.2),
+                    )
+                  : Border.all(color: AppColorHelper().errorBorderColor),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: TextFormWidget(
               controller: controller.passwordController,
-              focusNode: controller.passwordFocusNode,
+              focusNode: controller.passwordFocusNode, // only here
               borderColor: AppColorHelper().transparentColor,
-              label: password.tr,
+              label: null,
               textColor: AppColorHelper().primaryTextColor,
               height: 40,
               validator: (value) => value!.trim().isEmpty ? null : null,
               rxObscureText: controller.rxhidePassword,
+              enableObscureToggle: true,
             ),
-          ],
-        ));
+          ),
+        ],
+      ),
+    );
   }
 
-  Widget _buildShowPassSwitch(VoidCallback ontap) => GestureDetector(
-      onTap: ontap,
-      child: Container(
-          decoration: BoxDecoration(
-              color: AppColorHelper().cardColor,
-              borderRadius: BorderRadius.circular(4)),
-          width: 20,
-          height: 20, // match thumb size for better centering
-          child: GestureDetector(
-            onTap: ontap,
-            child: AnimatedContainer(
-              duration: const Duration(milliseconds: 200),
-              decoration: BoxDecoration(
-                color: !controller.rxhidePassword.value
-                    ? AppColorHelper().primaryColor
-                    : AppColorHelper().transparentColor,
-                borderRadius: BorderRadius.circular(4),
-                border: Border.all(
-                  color: AppColorHelper().borderColor.withValues(alpha: 0.6),
-                  width: 1,
-                ),
-              ),
-              child: !controller.rxhidePassword.value
-                  ? Icon(
-                      Icons.check,
-                      color: AppColorHelper().textColor,
-                      size: 18,
-                    )
-                  : null,
-            ),
-          )));
+  static Widget buildHeaderSurface({
+    bool animateLogo = false,
+    RxBool? showLogo,
+  }) {
+    final logo = Image.asset(
+      Assets.icons.agromisLogo.path,
+    );
+
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: AppColorHelper().secondaryTextColor,
+        image: DecorationImage(
+          image: AssetImage(Assets.images.loginTeaBg.path),
+          fit: BoxFit.cover, // fills the card completely
+        ),
+      ),
+      child: Stack(
+        fit: StackFit.expand,
+        children: [
+          Positioned(
+            top: 90,
+            bottom: 20,
+            left: 35,
+            right: 35,
+            child: animateLogo && showLogo != null
+                ? Obx(() => AnimatedOpacity(
+                      duration: const Duration(milliseconds: 800),
+                      curve: Curves.easeInOut,
+                      opacity: showLogo.value ? 1.0 : 0.0,
+                      child: logo,
+                    ))
+                : logo,
+          ),
+        ],
+      ),
+    );
+  }
+
+  // Widget _buildShowPassSwitch(VoidCallback ontap) => GestureDetector(
+  //     onTap: ontap,
+  //     child: Container(
+  //         decoration: BoxDecoration(
+  //             color: AppColorHelper().cardColor,
+  //             borderRadius: BorderRadius.circular(4)),
+  //         width: 20,
+  //         height: 20, // match thumb size for better centering
+  //         child: GestureDetector(
+  //           onTap: ontap,
+  //           child: AnimatedContainer(
+  //             duration: const Duration(milliseconds: 200),
+  //             decoration: BoxDecoration(
+  //               color: !controller.rxhidePassword.value
+  //                   ? AppColorHelper().primaryColor
+  //                   : AppColorHelper().transparentColor,
+  //               borderRadius: BorderRadius.circular(4),
+  //               border: Border.all(
+  //                 color: AppColorHelper().borderColor.withValues(alpha: 0.6),
+  //                 width: 1,
+  //               ),
+  //             ),
+  //             child: !controller.rxhidePassword.value
+  //                 ? Icon(
+  //                     Icons.check,
+  //                     color: AppColorHelper().textColor,
+  //                     size: 18,
+  //                   )
+  //                 : null,
+  //           ),
+  //         )));
 }

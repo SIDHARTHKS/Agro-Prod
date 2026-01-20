@@ -72,7 +72,7 @@ class BillSummaryView extends AppBaseView<BillSummaryController> {
 
   Widget _pendingBillCard(BillSummaryModel data) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
+      padding: const EdgeInsets.symmetric(horizontal: 25),
       child: Stack(
         clipBehavior: Clip.none,
         children: [
@@ -119,7 +119,7 @@ class BillSummaryView extends AppBaseView<BillSummaryController> {
 
   Widget _settledBillCard(BillSummaryModel data) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
+      padding: const EdgeInsets.symmetric(horizontal: 25),
       child: Stack(
         clipBehavior: Clip.none,
         children: [

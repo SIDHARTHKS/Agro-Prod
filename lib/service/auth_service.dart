@@ -1,5 +1,5 @@
 import '../helper/app_message.dart';
-
+import '../helper/app_string.dart';
 import '../helper/core/base/app_base_service.dart';
 import '../helper/enum.dart';
 import '../model/app_model.dart';
@@ -69,41 +69,28 @@ class AuthService extends AppBaseService {
     }
   }
 
-  // Future<LoginResponse?> login(LoginRequest request) async {
-  //   var response = await httpService.postService<LoginResponse>(
-  //       endpoint: getLoginApiEndpoint(),
-  //       headers: await getHeaders(
-  //           authorization: false,
-  //           xCorrelationId: false,
-  //           deviceId: false,
-  //           appId: false,
-  //           sid: false,
-  //           fbEid: false),
-  //       data: request.toJson(),
-  //       fromJsonT: (json) => LoginResponse.fromJson(json),
-  //       ignoreError: false);
-  //   if (response != null && response.data != null) {
-  //     return response.data;
-  //   }
-  //   return null;
-  // }
+  Future<UserLoginResponse?> userLogin(UserLoginRequest request) async {
+    final token = myApplication.preferenceHelper!.getString(accessTokenKey);
 
-  // Future<UserLoginResponse?> userLogin(List<CommonRequest> request) async {
-  //   var response = await httpService.postService<UserLoginResponse>(
-  //     endpoint: getUserLoginApiEndpoint(),
-  //     headers: await getHeaders(
-  //       authorization: true,
-  //       xCorrelationId: false,
-  //       sid: false,
-  //     ),
-  //     data: request,
-  //     fromJsonT: (json) => UserLoginResponse.fromJson(json),
-  //   );
-  //   if (response != null && response.data != null) {
-  //     return response.data;
-  //   }
-  //   return null;
-  // }
+    var response = await httpService.postService<UserLoginResponse>(
+      endpoint: getUserLoginApiEndpoint(token: token),
+      headers: await getHeaders(),
+      data: CommonRequest<UserLoginRequest>(
+        request: request,
+        pageMode: 0,
+        requestBase: RequestBase(
+          clientTag: "abc123",
+          transId: "sample string 2",
+          requestId: "sample string 4",
+        ),
+      ).toJson((r) => (r).toJson()),
+      fromJsonT: (json) => UserLoginResponse.fromJson(json),
+    );
+    if (response != null && response.data != null) {
+      return response.data;
+    }
+    return null;
+  }
 
   // Future<EmailResponse?> getMail(List<CommonRequest> request) async {
   //   var response = await httpService.postService<EmailResponse>(

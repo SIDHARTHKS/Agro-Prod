@@ -32,51 +32,41 @@ class DelayedPaymentsSettledView extends GetView<DelayedPaymentController> {
               }
               return false;
             },
-            child: ListView.builder(
+            child: ListView(
               padding: const EdgeInsets.only(
                 top: 25,
                 bottom: 35 + kBottomNavigationBarHeight,
               ),
-              itemCount: list.length + 3,
-              itemBuilder: (context, index) {
+              children: [
                 /// HEADER
-                if (index == 0) {
-                  return Center(
-                    child: DelayedPaymentSharedWidgets()
-                        .heading("Cleared Details"),
-                  );
-                }
+                Center(
+                  child:
+                      DelayedPaymentSharedWidgets().heading("Cleared Details"),
+                ),
 
                 /// SEARCH BAR
-                if (index == 1) {
-                  return Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 25),
-                    child: DelayedPaymentSharedWidgets()
-                        .searchBar(controller.searchController),
-                  );
-                }
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 25),
+                  child: DelayedPaymentSharedWidgets()
+                      .searchBar(controller.searchController),
+                ),
+
+                /// BILL CARDS
+                ...list.map(
+                  (item) => Padding(
+                    padding: const EdgeInsets.only(bottom: 18),
+                    child: _settledBillCard(item),
+                  ),
+                ),
 
                 /// LOADING FOOTER
-                if (index == list.length + 2 &&
-                    controller.settledVisibleCount.value <
-                        controller.settledDisplayList.length) {
-                  return const Padding(
+                if (controller.settledVisibleCount.value <
+                    controller.settledDisplayList.length)
+                  const Padding(
                     padding: EdgeInsets.all(16),
                     child: Center(child: CircularProgressIndicator()),
-                  );
-                }
-
-                /// BILL CARD
-                final billIndex = index - 2;
-                if (billIndex >= list.length) {
-                  return const SizedBox.shrink();
-                }
-
-                return Padding(
-                  padding: const EdgeInsets.only(bottom: 18),
-                  child: _settledBillCard(list[billIndex]),
-                );
-              },
+                  ),
+              ],
             ),
           ));
     });
@@ -84,7 +74,7 @@ class DelayedPaymentsSettledView extends GetView<DelayedPaymentController> {
 
   Widget _settledBillCard(DelayedPayListDtl data) {
     return Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 18),
+        padding: const EdgeInsets.symmetric(horizontal: 25),
         child: Stack(
           clipBehavior: Clip.none,
           children: [

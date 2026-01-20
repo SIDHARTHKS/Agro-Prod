@@ -6,10 +6,8 @@ import '../helper/app_message.dart';
 import '../helper/app_string.dart';
 import '../helper/core/base/app_base_controller.dart';
 import '../helper/core/environment/env.dart';
-import '../helper/date_helper.dart';
 import '../helper/deviceInfo.dart';
 import '../helper/enum.dart';
-import '../model/app_model.dart';
 import '../model/login_model.dart';
 import '../service/auth_service.dart';
 
@@ -62,17 +60,30 @@ class LoginController extends AppBaseController {
   Rxn<EmailResponse> rxMailResponse = Rxn<EmailResponse>();
   Rxn<OtpResponse> rxOtpResponse = Rxn<OtpResponse>();
 
+  final ScrollController scrollController = ScrollController();
+  final RxDouble headerHeight = 211.0.obs; // max height
+  final RxDouble headerOffset = 0.0.obs;
+
+  final RxDouble bgOffset = 0.0.obs;
+
   @override
   Future<void> onInit() async {
     form = GlobalKey<FormState>();
+
     userFocusNode.addListener(() {
       isUserFieldFocused.value =
           (userFocusNode.hasFocus || userController.text.isNotEmpty);
     });
+
     passwordFocusNode.addListener(() {
       isPasswordFieldFocused.value =
           (passwordFocusNode.hasFocus || passwordController.text.isNotEmpty);
     });
+
+    scrollController.addListener(() {
+      bgOffset.value = scrollController.offset;
+    });
+
     super.onInit();
   }
 
@@ -115,21 +126,21 @@ class LoginController extends AppBaseController {
     String email = userController.text.trim();
     String password = passwordController.text.trim();
 
-    // username validation
+    // // username validation
     // if (isStringNullOrEmpty(email)) {
     //   isUsernameValid(false);
     // } else {
     //   isUsernameValid(true);
     // }
 
-    // // password validation
+    // // // password validation
     // if (isStringNullOrEmpty(password)) {
     //   isPasswordValid(false);
     // } else {
     //   isPasswordValid(true);
     // }
 
-    //Temporary Use Only
+    // //Temporary Use Only
     isUsernameValid(true);
     isPasswordValid(true);
 
@@ -140,25 +151,38 @@ class LoginController extends AppBaseController {
     return false;
   }
 
+  String gfPwdConvert(String chrText) {
+    String pwd = '';
+    try {
+      // Encrypt
+      String trimmed = chrText.trim();
+      for (int i = 0; i < trimmed.length; i++) {
+        int code = trimmed.codeUnitAt(i) + 100;
+        pwd += String.fromCharCode(code);
+      }
+    } catch (e) {
+      // handle/log error if needed
+    }
+    return pwd;
+  }
+
   Future<bool> _callSignInService() async {
     try {
       showLoader();
       await Future.delayed(const Duration(milliseconds: 150));
-      String username = "admin"; //userController.text.trim();
-      String password = "safe"; //passwordController.text.trim();
-      // if (!username.endsWith("@MUZIRIS")) {
-      //   username += "@MUZIRIS";
-      // }
+      String username = userController.text.trim();
+      String password = gfPwdConvert(passwordController.text.trim());
+
       LoginResponse? response = await _authService.login(LoginRequest(
-        userCode: username,
-        password: password,
+        userCode: user,
+        password: pass,
       ));
       if (response != null) {
         rxLoginResponse.value = response;
         myApp.preferenceHelper!
             .setString(accessTokenKey, rxLoginResponse.value!.data ?? '');
 
-        //bool setProfile = await _callUserSignIn(username, password);
+        // bool setProfile = await _callUserSignIn(username, password);
         bool setProfile = true;
         return setProfile;
       }
@@ -170,31 +194,34 @@ class LoginController extends AppBaseController {
     return false;
   }
 
-  // Future<bool> _callUserSignIn(String name, String pass) async {
-  //   try {
-  //     showLoader();
-  //     var userLoginRequestList = [
-  //       CommonRequest(attribute: "UserCode", value: name),
-  //       CommonRequest(attribute: "UserPassword", value: pass),
-  //     ];
-  //     UserLoginResponse? response =
-  //         await _authService.userLogin(userLoginRequestList);
-  //     if (response != null) {
-  //       rxUserLoginResponse.value = response;
-  //       await _saveLoginDataToPref();
+  Future<bool> _callUserSignIn(String name, String pass) async {
+    try {
+      showLoader();
+      // var userLoginRequestList = [
+      //   CommonRequest(attribute: "UserCode", value: name),
+      //   CommonRequest(attribute: "UserPassword", value: pass),
+      // ];
+      UserLoginResponse? response =
+          await _authService.userLogin(UserLoginRequest(
+        userCode: name,
+        password: pass,
+      ));
+      if (response != null) {
+        rxUserLoginResponse.value = response;
+        await _saveLoginDataToPref();
 
-  //       userController.clear();
-  //       passwordController.clear();
+        userController.clear();
+        passwordController.clear();
 
-  //       return true;
-  //     }
-  //   } catch (e) {
-  //     appLog('$exceptionMsg $e', logging: Logging.error);
-  //   } finally {
-  //     hideLoader();
-  //   }
-  //   return false;
-  // }
+        return true;
+      }
+    } catch (e) {
+      appLog('$exceptionMsg $e', logging: Logging.error);
+    } finally {
+      hideLoader();
+    }
+    return false;
+  }
 
   Future<void> _saveLoginDataToPref() async {
     if (myApp.preferenceHelper != null) {
@@ -206,17 +233,20 @@ class LoginController extends AppBaseController {
       myApp.preferenceHelper!
           .setString(loginPasswordKey, passwordController.text.trim());
 
-      //user image
-      myApp.preferenceHelper!
-          .setString(userImgKey, rxUserLoginResponse.value!.userImgUrl ?? '');
-
       //user details
       myApp.preferenceHelper!
           .setString(userNameKey, rxUserLoginResponse.value!.userName ?? '');
-      myApp.preferenceHelper!.setString(employeeIdKey,
-          (rxUserLoginResponse.value!.employeeId ?? "").toString());
       myApp.preferenceHelper!.setString(
-          employeeTypeKey, rxUserLoginResponse.value!.employeeType ?? '');
+          userIdKey, (rxUserLoginResponse.value!.userId ?? "").toString());
+
+      myApp.preferenceHelper!.setString(
+          defaultCompCodeKey, rxUserLoginResponse.value!.defaultCompCode ?? '');
+
+      myApp.preferenceHelper!.setString(defaultBranchCodeKey,
+          rxUserLoginResponse.value!.defaultBranchCode ?? '');
+
+      myApp.preferenceHelper!.setString(defaultLocationIDKey,
+          (rxUserLoginResponse.value!.defaultLocationId ?? "").toString());
 
       // token
       myApp.preferenceHelper!
