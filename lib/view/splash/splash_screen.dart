@@ -1,5 +1,4 @@
 import 'dart:io';
-import 'package:agro/helper/sizer.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
@@ -22,6 +21,7 @@ class SplashScreen extends AppBaseView<SplashController> {
 
   Scaffold _widgetView() => appScaffold(
         topSafe: false,
+        bottomSafe: false,
         bottomNavigationBar: SafeArea(
           child: appText("VERSION ${AppEnvironment.config.version}",
               fontWeight: FontWeight.w500,

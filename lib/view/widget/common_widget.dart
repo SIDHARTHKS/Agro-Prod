@@ -26,6 +26,7 @@ Scaffold appScaffold(
         extendBody = true,
         bool isTransparent = false,
         bool topSafe = true,
+        bool bottomSafe = true,
         VoidCallback? action,
         bool? canpop,
         Color? bgcolor}) =>
@@ -38,7 +39,7 @@ Scaffold appScaffold(
       backgroundColor: bgcolor ?? AppColorHelper().backgroundColor,
       body: SafeArea(
         top: topSafe, // Set to true if you want to avoid notch overlap too
-        bottom: true, //
+        bottom: bottomSafe, //
         child: PopScope(
           canPop: canpop ?? true,
           onPopInvokedWithResult: (didpop, result) {

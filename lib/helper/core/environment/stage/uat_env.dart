@@ -8,7 +8,7 @@ class UatEnvironment extends EnvironmentConfig {
           enableLogs: true,
           enableNetworkImages: true,
           version: '1.0.1',
-          appUpdateDate: '3rd October 2025 09:00 AM',
-          releaseDate: '3rd October 2025',
+          appUpdateDate: '20th January 2026 12:00 PM',
+          releaseDate: '20th January 2026',
         );
 }

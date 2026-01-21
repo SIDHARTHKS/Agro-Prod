@@ -8,7 +8,7 @@ class DevEnvironment extends EnvironmentConfig {
           enableLogs: true,
           enableNetworkImages: true,
           version: '1.0.1',
-          appUpdateDate: '06th January 2026 12:00 PM',
-          releaseDate: '06th January 2026',
+          appUpdateDate: '20th January 2026 12:00 PM',
+          releaseDate: '20th January 2026',
         );
 }

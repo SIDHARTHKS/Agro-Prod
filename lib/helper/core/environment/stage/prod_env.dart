@@ -9,7 +9,7 @@ class ProdEnvironment extends EnvironmentConfig {
           enableLogs: false,
           enableNetworkImages: true,
           version: '1.0.1',
-          appUpdateDate: '12rd Dec 2025 2:00 PM',
-          releaseDate: '12rd Dec 2025',
+          appUpdateDate: '20th January 2026 12:00 PM',
+          releaseDate: '20th January 2026',
         );
 }
