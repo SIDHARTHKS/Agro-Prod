@@ -72,31 +72,30 @@ class BillSummaryView extends AppBaseView<BillSummaryController> {
 
   Widget _pendingBillCard(BillSummaryModel data) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 25),
-      child: Stack(
-        clipBehavior: Clip.none,
-        children: [
-          Container(
-            padding: const EdgeInsets.only(top: 8),
-            height: 320,
-            decoration: BoxDecoration(
-              color: AppColorHelper().cardColor,
-              borderRadius: BorderRadius.circular(12),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.12),
-                  blurRadius: 12,
-                  spreadRadius: -6,
-                  offset: const Offset(0, 10),
-                ),
-              ],
+      padding: const EdgeInsets.symmetric(horizontal: 20),
+      child: Container(
+        //padding: const EdgeInsets.only(top: 8),
+        height: 320,
+        decoration: BoxDecoration(
+          color: AppColorHelper().cardColor,
+          borderRadius: BorderRadius.circular(12),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.12),
+              blurRadius: 12,
+              spreadRadius: -6,
+              offset: const Offset(0, 10),
             ),
-            child: Column(
+          ],
+        ),
+        child: Stack(
+          clipBehavior: Clip.none,
+          children: [
+            Column(
               children: [
-                height(5),
+                height(10),
 
                 /// 👇 Tap only on header
-
                 BillsSummarySharedWidgets().cardHeader(data, true),
 
                 BillsSummarySharedWidgets().addressInfoRow(data),
@@ -105,63 +104,69 @@ class BillSummaryView extends AppBaseView<BillSummaryController> {
                 _phoneTag(data),
                 height(9),
                 BillsSummarySharedWidgets().pendingBillInfoRow(data),
-                // _billDateRow(data),
-                height(9),
+
+                const Spacer(), // adaptive spacing
+
                 __reminderButton(),
               ],
             ),
-          ),
-          BillsSummarySharedWidgets().lateTag(data),
-        ],
+
+            /// Overlay tag
+            BillsSummarySharedWidgets().lateTag(data),
+          ],
+        ),
       ),
     );
   }
 
   Widget _settledBillCard(BillSummaryModel data) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 25),
-      child: Stack(
-        clipBehavior: Clip.none,
-        children: [
-          Container(
-            padding: const EdgeInsets.only(top: 8),
-            height: 221,
-            decoration: BoxDecoration(
-              color: AppColorHelper().cardColor,
-              borderRadius: BorderRadius.circular(12),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.12),
-                  blurRadius: 12,
-                  spreadRadius: -6,
-                  offset: const Offset(0, 10),
-                ),
-              ],
+      padding: const EdgeInsets.symmetric(horizontal: 20),
+      child: Container(
+        // padding: const EdgeInsets.only(top: 8),
+        height: 221,
+        decoration: BoxDecoration(
+          color: AppColorHelper().cardColor,
+          borderRadius: BorderRadius.circular(12),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.12),
+              blurRadius: 12,
+              spreadRadius: -6,
+              offset: const Offset(0, 10),
             ),
-            child: Column(
+          ],
+        ),
+        child: Stack(
+          clipBehavior: Clip.none,
+          children: [
+            Column(
               children: [
-                //height(5),
-
                 /// 👇 Tap only on header
-
+                height(10),
                 BillsSummarySharedWidgets().cardHeader(data, true),
 
                 BillsSummarySharedWidgets().addressInfoRow(data),
                 height(18),
-                Flexible(child: LayoutBuilder(builder: (context, constraints) {
-                  return BillsSummarySharedWidgets()
-                      .dashedLine(constraints.biggest.width);
-                })),
-                height(15),
 
+                Flexible(
+                  child: LayoutBuilder(
+                    builder: (context, constraints) {
+                      return BillsSummarySharedWidgets()
+                          .dashedLine(constraints.biggest.width);
+                    },
+                  ),
+                ),
+
+                height(15),
                 BillsSummarySharedWidgets().settledBillInfoRow(data),
-                // _billDateRow(data),
-                // height(9),
               ],
             ),
-          ),
-          BillsSummarySharedWidgets().lateTag(data),
-        ],
+
+            /// Overlay tag
+            BillsSummarySharedWidgets().lateTag(data),
+          ],
+        ),
       ),
     );
   }

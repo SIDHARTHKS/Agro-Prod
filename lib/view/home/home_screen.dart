@@ -24,7 +24,13 @@ class HomeScreen extends AppBaseView<HomeController> {
           extendBodyBehindAppBar: true,
           topSafe: false,
           appBar: customAppBar(
-              controller.appBarTitles[controller.rxCurrentNavBarIndex.value]),
+            controller.appBarTitles[controller.rxCurrentNavBarIndex.value],
+            onTap: () {
+              if (controller.rxCurrentNavBarIndex.value > 0) {
+                controller.rxCurrentNavBarIndex.value--;
+              }
+            },
+          ),
           body: _buildBody(),
           bottomNavigationBar: _bottomNavBr());
     });

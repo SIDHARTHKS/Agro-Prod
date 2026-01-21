@@ -225,8 +225,8 @@ class BillsSummarySharedWidgets {
             child: Row(
               children: [
                 Expanded(
-                    child: _infoColumn(
-                        "Transaction Type", data.transactionType ?? '')),
+                    child:
+                        _infoColumn("Trans Type", data.transactionType ?? '')),
                 Expanded(
                     child: _infoColumn("Settled On", data.settledDate ?? '')),
                 Expanded(

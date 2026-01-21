@@ -31,6 +31,7 @@ class LoginScreen extends AppBaseView<LoginController> {
 
   Scaffold _buildScaffold() => appScaffold(
         topSafe: false,
+        bottomSafe: false,
         resizeToAvoidBottomInset: true,
         body: appFutureBuilder<void>(
           () => controller.fetchInitData(),
@@ -40,84 +41,43 @@ class LoginScreen extends AppBaseView<LoginController> {
 
   Widget _buildBody() {
     return SizedBox.expand(
-      child: Stack(
-        children: [
-          // 🔵 MOVING LOGIN BACKGROUND
-          Obx(() {
-            final offset = controller.bgOffset.value;
-
-            return Positioned.fill(
-              child: Transform.translate(
-                offset: Offset(0, -offset * 0.8),
-                child: Transform.scale(
-                  scaleX: 1.0,
-                  scaleY: 1.10, // 👈 enlarge vertically by 15%
-                  alignment: Alignment.topCenter,
-                  child: Image.asset(
-                    Assets.images.loginBg1.path,
-                    fit: BoxFit.cover,
-                  ),
-                ),
-              ),
-            );
-          }),
-
-          // 🔴 FOREGROUND CONTENT (ONLY ONE HEADER)
-          GestureDetector(
-            onTap: () {
-              FocusScope.of(Get.context!).unfocus();
-            },
-            child: AnimatedPadding(
-              duration: const Duration(milliseconds: 200),
-              curve: Curves.easeOut,
-              padding: EdgeInsets.only(
-                bottom: MediaQuery.of(Get.context!).viewInsets.bottom,
-              ),
+      child: Container(
+        decoration: BoxDecoration(
+          image: DecorationImage(
+            image: AssetImage(Assets.images.loginBg1.path),
+            fit: BoxFit.cover,
+          ),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Expanded(
               child: SingleChildScrollView(
                 controller: controller.scrollController,
-                primary: false,
                 physics: const AlwaysScrollableScrollPhysics(),
-                padding: EdgeInsets.only(
-                  left: 12,
-                  right: 12,
-                  bottom: MediaQuery.of(Get.context!).viewInsets.bottom,
-                ),
                 child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    // Header
-                    Obx(() => AnimatedOpacity(
-                          duration: const Duration(
-                              milliseconds: 2000), // same as splash exit
-                          curve: Curves.easeInOut,
-                          opacity: showHeader.value ? 1.0 : 0.0,
-                          child: Padding(
-                            padding:
-                                const EdgeInsets.symmetric(horizontal: 110),
-                            child: SizedBox(
-                              height: 220,
-                              child: ClipRRect(
-                                borderRadius: const BorderRadius.only(
-                                  bottomLeft: Radius.circular(20),
-                                  bottomRight: Radius.circular(20),
-                                ),
-                                child: LoginScreen.buildHeaderSurface(),
-                              ),
-                            ),
-                          ),
-                        )),
-
-                    SafeArea(
-                      top: false,
-                      child: _mobileView(),
+                    Center(
+                      child: ClipRRect(
+                        borderRadius: const BorderRadius.only(
+                          bottomLeft: Radius.circular(20),
+                          bottomRight: Radius.circular(20),
+                        ),
+                        child: SizedBox(
+                          height: 220,
+                          width: Get.width * 0.4,
+                          child: LoginScreen.buildHeaderSurface(),
+                        ),
+                      ),
                     ),
-                    height(170)
+                    _mobileView(),
+                    height(170),
                   ],
                 ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -268,28 +228,6 @@ class LoginScreen extends AppBaseView<LoginController> {
 
   Widget _buildUsernameField() {
     return Focus(
-      onFocusChange: (hasFocus) {
-        final ctx = _userFieldKey.currentContext;
-        if (ctx == null) return;
-
-        if (hasFocus) {
-          // Scroll up a bit when focused
-          Scrollable.ensureVisible(
-            ctx,
-            duration: const Duration(milliseconds: 300),
-            curve: Curves.easeOut,
-            alignment: 0.1,
-          );
-        } else {
-          // Scroll back down when focus is lost
-          Scrollable.ensureVisible(
-            ctx,
-            duration: const Duration(milliseconds: 300),
-            curve: Curves.easeOut,
-            alignment: 0.9,
-          );
-        }
-      },
       child: Column(
         key: _userFieldKey,
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -329,32 +267,6 @@ class LoginScreen extends AppBaseView<LoginController> {
     final isFocused = controller.isPasswordFieldFocused.value;
 
     return Focus(
-      onFocusChange: (hasFocus) async {
-        final ctx = _passFieldKey.currentContext;
-        if (ctx == null) return;
-
-        if (hasFocus) {
-          Scrollable.ensureVisible(
-            ctx,
-            duration: const Duration(milliseconds: 300),
-            curve: Curves.easeOut,
-            alignment: 0.1,
-          );
-        } else {
-          // Close keyboard first
-          FocusScope.of(ctx).unfocus();
-
-          // Give layout a moment to expand back
-          await Future.delayed(const Duration(milliseconds: 120));
-
-          // Then gently scroll back down
-          controller.scrollController.animateTo(
-            0,
-            duration: const Duration(milliseconds: 300),
-            curve: Curves.easeOut,
-          );
-        }
-      },
       child: Column(
         key: _passFieldKey,
         crossAxisAlignment: CrossAxisAlignment.start,

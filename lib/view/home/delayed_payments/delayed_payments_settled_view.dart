@@ -74,7 +74,7 @@ class DelayedPaymentsSettledView extends GetView<DelayedPaymentController> {
 
   Widget _settledBillCard(DelayedPayListDtl data) {
     return Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 25),
+        padding: const EdgeInsets.symmetric(horizontal: 20),
         child: Stack(
           clipBehavior: Clip.none,
           children: [

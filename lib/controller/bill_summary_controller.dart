@@ -58,15 +58,30 @@ class BillSummaryController extends AppBaseController
   Future<void> _loadFromApi(BillSummaryRequest request) async {
     billSummary.value = null; // triggers loader
 
-    final result = await _service.fetchDelayedPayBillSummary(request);
+    try {
+      final result = await _service.fetchDelayedPayBillSummary(request);
 
-    if (result != null) {
-      billSummary.value = result;
-    } else {
-      appLog(
-        'BillSummary API returned null',
-        logging: Logging.error,
+      if (result != null) {
+        billSummary.value = result;
+      } else {
+        showErrorSnackbar(
+          title: "No Bill Details",
+          message: "No bill details found for this invoice.",
+        );
+
+        Future.delayed(const Duration(milliseconds: 300), () {
+          Get.back();
+        });
+      }
+    } catch (e) {
+      showErrorSnackbar(
+        title: "Error",
+        message: "Failed to load bill details. Please try again.",
       );
+
+      Future.delayed(const Duration(milliseconds: 300), () {
+        Get.back();
+      });
     }
   }
 }

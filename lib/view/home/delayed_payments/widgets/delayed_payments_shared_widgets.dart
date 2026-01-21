@@ -45,7 +45,7 @@ class DelayedPaymentSharedWidgets {
   }
 
   Widget dashedLine(double maxWidth) {
-    const horizontalPadding = 25.0;
+    const horizontalPadding = 20.0;
 
     final usableWidth = maxWidth - (horizontalPadding * 2);
 
@@ -62,7 +62,7 @@ class DelayedPaymentSharedWidgets {
 
   Widget searchBar(TextEditingController controller) {
     return Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 25),
+        padding: const EdgeInsets.symmetric(horizontal: 20),
         child: SizedBox(
           height: 45,
           child: CustomSearchBar(

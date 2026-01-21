@@ -176,7 +176,7 @@ class DelayedPaymentsPendingView extends GetView<DelayedPaymentController> {
     final locations = model.locationDetailsListDtls!;
 
     return Padding(
-      padding: const EdgeInsets.only(left: 25),
+      padding: const EdgeInsets.only(left: 20),
       child: SizedBox(
         height: 90,
         child: ListView.builder(
@@ -250,7 +250,7 @@ class DelayedPaymentsPendingView extends GetView<DelayedPaymentController> {
 
   Widget _pendingBillCard(DelayedPayListDtl data) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 1),
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 1),
       child: Stack(
         clipBehavior: Clip.none,
         children: [
