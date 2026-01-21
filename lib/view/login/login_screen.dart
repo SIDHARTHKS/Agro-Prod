@@ -40,44 +40,44 @@ class LoginScreen extends AppBaseView<LoginController> {
       );
 
   Widget _buildBody() {
-    return SizedBox.expand(
-      child: Container(
-        decoration: BoxDecoration(
-          image: DecorationImage(
-            image: AssetImage(Assets.images.loginBg1.path),
-            fit: BoxFit.cover,
-          ),
+    return Container(
+      width: Get.width,
+      height: Get.height,
+      decoration: BoxDecoration(
+        image: DecorationImage(
+          image: AssetImage(Assets.images.loginBg1.path),
+          fit: BoxFit.cover,
         ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Expanded(
-              child: SingleChildScrollView(
-                controller: controller.scrollController,
-                physics: const AlwaysScrollableScrollPhysics(),
-                child: Column(
-                  children: [
-                    Center(
-                      child: ClipRRect(
-                        borderRadius: const BorderRadius.only(
-                          bottomLeft: Radius.circular(20),
-                          bottomRight: Radius.circular(20),
-                        ),
-                        child: SizedBox(
-                          height: 220,
-                          width: Get.width * 0.4,
-                          child: LoginScreen.buildHeaderSurface(),
-                        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Expanded(
+            child: SingleChildScrollView(
+              controller: controller.scrollController,
+              physics: const AlwaysScrollableScrollPhysics(),
+              child: Column(
+                children: [
+                  Center(
+                    child: ClipRRect(
+                      borderRadius: const BorderRadius.only(
+                        bottomLeft: Radius.circular(20),
+                        bottomRight: Radius.circular(20),
+                      ),
+                      child: SizedBox(
+                        height: 220,
+                        width: Get.width * 0.4,
+                        child: LoginScreen.buildHeaderSurface(),
                       ),
                     ),
-                    _mobileView(),
-                    height(170),
-                  ],
-                ),
+                  ),
+                  _mobileView(),
+                  height(170),
+                ],
               ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
