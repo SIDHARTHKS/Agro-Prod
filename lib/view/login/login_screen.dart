@@ -12,6 +12,7 @@ import '../../helper/route.dart';
 import '../../helper/sizer.dart';
 import '../../service/auth_service.dart';
 import '../widget/common_widget.dart';
+import '../widget/animatedexpandcontainer/animated_expand_container.dart';
 import '../splash/splash_screen.dart';
 import '../widget/textformfield/app_textformfield_widget.dart';
 
@@ -40,41 +41,74 @@ class LoginScreen extends AppBaseView<LoginController> {
       );
 
   Widget _buildBody() {
-    return Container(
-      width: Get.width,
-      height: Get.height,
-      decoration: BoxDecoration(
-        image: DecorationImage(
-          image: AssetImage(Assets.images.loginBg1.path),
-          fit: BoxFit.cover,
-        ),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
+    return SizedBox.expand(
+      child: Stack(
         children: [
-          Expanded(
-            child: SingleChildScrollView(
-              controller: controller.scrollController,
-              physics: const AlwaysScrollableScrollPhysics(),
+          // 🔵 Splash background (bottom-most)
+
+          // 🟢 Login background (above splash bg)
+          Positioned.fill(
+            child: Image.asset(
+              Assets.images.loginBg1.path,
+              fit: BoxFit.cover,
+            ),
+          ),
+
+          AnimatedExpandContainer(
+            duration: const Duration(milliseconds: 1200),
+            initialHeight: 0, // start hidden at bottom
+            finalHeight: Get.height, // grow to full height
+            initialWidth: Get.width, // fixed width
+            finalWidth: Get.width, // fixed width (no change)
+            alignment: Alignment.bottomCenter,
+            child: GestureDetector(
+              onTap: () {
+                FocusScope.of(Get.context!).unfocus();
+              },
               child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  Center(
-                    child: ClipRRect(
-                      borderRadius: const BorderRadius.only(
-                        bottomLeft: Radius.circular(20),
-                        bottomRight: Radius.circular(20),
-                      ),
-                      child: SizedBox(
-                        height: 220,
-                        width: Get.width * 0.4,
-                        child: LoginScreen.buildHeaderSurface(),
+                  Expanded(
+                    child: SingleChildScrollView(
+                      controller: controller.scrollController,
+                      physics: const AlwaysScrollableScrollPhysics(),
+                      child: Column(
+                        children: [
+                          Center(
+                            child: ClipRRect(
+                              borderRadius: const BorderRadius.only(
+                                bottomLeft: Radius.circular(20),
+                                bottomRight: Radius.circular(20),
+                              ),
+                              child: SizedBox(
+                                height: 220,
+                                width: Get.width * 0.4,
+                                child: LoginScreen.buildHeaderSurface(),
+                              ),
+                            ),
+                          ),
+                          _mobileView(),
+                          height(170),
+                        ],
                       ),
                     ),
                   ),
-                  _mobileView(),
-                  height(170),
                 ],
               ),
+            ),
+          ),
+
+          // Splash bg that collapses upward
+          AnimatedExpandContainer(
+            delay: const Duration(seconds: 1), // stays full screen first
+            duration: const Duration(milliseconds: 1200),
+            initialHeight: Get.height, // full screen
+            finalHeight: 220, // header height
+            initialWidth: Get.width,
+            finalWidth: Get.width * 0.4,
+            child: Image.asset(
+              Assets.images.splashBg2.path,
+              fit: BoxFit.cover,
             ),
           ),
         ],

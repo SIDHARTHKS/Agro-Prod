@@ -10,6 +10,7 @@ import '../../helper/color_helper.dart';
 import '../../helper/core/base/app_base_view.dart';
 import '../../helper/core/environment/env.dart';
 import '../../helper/navigation.dart';
+import '../../helper/sizer.dart';
 import '../../helper/route.dart';
 import '../widget/common_widget.dart';
 
@@ -73,55 +74,25 @@ class SplashScreen extends AppBaseView<SplashController> {
             fit: BoxFit.cover,
           ),
 
-          // second image fade
-          // AnimatedOpacity(
-          //   duration: const Duration(milliseconds: 1000),
-          //   curve: Curves.easeInOut,
-          //   opacity: controller.rxShowSecondImage.value ? 1.0 : 0.0,
-          //   child: Image.asset(
-          //     Assets.images.splashBg2.path,
-          //     fit: BoxFit.cover,
-          //   ),
-          // ),
-
-          // Align(
-          //   alignment: const Alignment(0, -0.1),
-          //   child: AnimatedOpacity(
-          //     duration: const Duration(milliseconds: 1000),
-          //     curve: Curves.easeInOut,
-          //     opacity: controller.rxShowSecondImage.value ? 1.0 : 0.0,
-          //     child: muzirisLogo(),
-          //   ),
-          // ),
-
-          // Align(
-          //   alignment: const Alignment(0, 1),
-          //   child: SizedBox(
-          //     height: Get.height * 0.48,
-          //     child: SlideTransition(
-          //       position: controller.textSlide,
-          //       child: Column(
-          //         mainAxisSize: MainAxisSize.max,
-          //         crossAxisAlignment: CrossAxisAlignment.center,
-          //         children: [
-          //           appText(
-          //             "Initializing your workspace",
-          //             fontWeight: FontWeight.w500,
-          //             fontSize: 14,
-          //             textAlign: TextAlign.center,
-          //           ),
-          //           height(4),
-          //           appText(
-          //             "Please wait...",
-          //             fontWeight: FontWeight.w800,
-          //             fontSize: 16,
-          //             textAlign: TextAlign.center,
-          //           ),
-          //         ],
-          //       ),
-          //     ),
-          //   ),
-          // ),
+          Align(
+            alignment: const Alignment(0, 1),
+            child: SizedBox(
+              height: Get.height,
+              child: SlideTransition(
+                position: controller.logoSlide,
+                child: FadeTransition(
+                  opacity: controller.logoFade, // 👈 add this
+                  child: FractionallySizedBox(
+                    widthFactor: 0.41,
+                    child: Image.asset(
+                      Assets.images.agromisLogo.path,
+                      fit: BoxFit.contain,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
         ],
       );
 

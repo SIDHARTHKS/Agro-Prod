@@ -11,9 +11,12 @@ class SplashController extends AppBaseController
   var rxUpdateRequired = false.obs;
 
   // animation
-
-  late Animation<Offset> textSlide;
+  // animation
+  late AnimationController _textController;
+  late Animation<Offset> logoSlide;
   RxBool rxShowSecondImage = false.obs;
+
+  late Animation<double> logoFade;
 
   // tasks
   RxList<TaskResponse> rxTasksResponse = <TaskResponse>[].obs;
@@ -21,14 +24,19 @@ class SplashController extends AppBaseController
   @override
   Future<void> onInit() async {
     super.onInit();
-    // initTextAnimation();
-    // await startBackgroundAnimation();
-    // _textController.forward();
+    initTextAnimation();
+    _textController.forward();
+
+    //await _textController.forward().orCancel;
+
+    // Hold the logo at center for ~1 second
+    await Future.delayed(const Duration(seconds: 1));
   }
 
   Future<int> fetchUserProfile() async {
-    await Future.delayed(const Duration(
-        seconds: 1)); // required for completing the anmtn----------
+    // Ensure splash lives at least 3 seconds
+    await Future.delayed(const Duration(milliseconds: 2500));
+
     var preference = myApp.preferenceHelper;
     if (preference != null) {
       final rememberMe = preference.getBool(rememberMeKey);
@@ -40,7 +48,7 @@ class SplashController extends AppBaseController
       }
     }
 
-    return 2; // fallback for all other cases
+    return 2;
   }
 
   Future<void> resetPref() async {
@@ -48,38 +56,43 @@ class SplashController extends AppBaseController
     _preference?.remove(loginPasswordKey);
   }
 
-  // void initTextAnimation() {
-  //   _textController = AnimationController(
-  //     vsync: this,
-  //     duration: const Duration(milliseconds: 2000),
-  //   );
+  void initTextAnimation() {
+    _textController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 2500),
+    );
 
-  //   textSlide = TweenSequence<Offset>([
-  //     TweenSequenceItem(
-  //       tween: Tween(begin: const Offset(0, 1.5), end: const Offset(0, 0))
-  //           .chain(CurveTween(curve: Curves.easeOutCubic)),
-  //       weight: 60,
-  //     ),
-  //     TweenSequenceItem(
-  //       tween: Tween(begin: const Offset(0, 0), end: const Offset(0, 0.05))
-  //           .chain(CurveTween(curve: Curves.easeInOut)),
-  //       weight: 40,
-  //     ),
-  //   ]).animate(_textController);
-  // }
+    logoSlide = TweenSequence<Offset>([
+      TweenSequenceItem(
+        tween: Tween(begin: const Offset(0, 1.6), end: const Offset(0, 0))
+            .chain(CurveTween(curve: Curves.easeOutCubic)),
+        weight: 70,
+      ),
+      TweenSequenceItem(
+        tween: ConstantTween(const Offset(0, 0)),
+        weight: 30,
+      ),
+    ]).animate(_textController);
 
-  /// Background fade transition
-  Future<void> startBackgroundAnimation() async {
-    await Future.delayed(const Duration(milliseconds: 600));
-    rxShowSecondImage(true);
+    logoFade = TweenSequence<double>([
+      // stay invisible for a short moment
+      TweenSequenceItem(
+        tween: ConstantTween(0.0),
+        weight: 20,
+      ),
 
-    // Optional: wait extra time for fade to look smooth
-    await Future.delayed(const Duration(milliseconds: 150));
+      // smooth fade-in
+      TweenSequenceItem(
+        tween: Tween(begin: 0.0, end: 1.0)
+            .chain(CurveTween(curve: Curves.easeInOutCubic)),
+        weight: 80,
+      ),
+    ]).animate(_textController);
   }
 
   @override
   void onClose() {
-    // _textController.dispose();
+    _textController.dispose();
     super.onClose();
   }
 }

@@ -146,6 +146,10 @@ class $AssetsIconsGen {
 class $AssetsImagesGen {
   const $AssetsImagesGen();
 
+  /// File path: assets/images/agromisLogo.png
+  AssetGenImage get agromisLogo =>
+      const AssetGenImage('assets/images/agromisLogo.png');
+
   /// File path: assets/images/loginBg.png
   AssetGenImage get loginBg => const AssetGenImage('assets/images/loginBg.png');
 
@@ -176,8 +180,13 @@ class $AssetsImagesGen {
   AssetGenImage get splashBg2 =>
       const AssetGenImage('assets/images/splashBg2.png');
 
+  /// File path: assets/images/splashBg3.png
+  AssetGenImage get splashBg3 =>
+      const AssetGenImage('assets/images/splashBg3.png');
+
   /// List of all assets
   List<AssetGenImage> get values => [
+        agromisLogo,
         loginBg,
         loginBg1,
         loginBg2,
@@ -185,7 +194,8 @@ class $AssetsImagesGen {
         muziris,
         muziriswhite,
         splashBg1,
-        splashBg2
+        splashBg2,
+        splashBg3
       ];
 }
 
