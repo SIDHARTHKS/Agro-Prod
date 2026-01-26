@@ -184,6 +184,10 @@ class $AssetsImagesGen {
   AssetGenImage get splashBg3 =>
       const AssetGenImage('assets/images/splashBg3.png');
 
+  /// File path: assets/images/splashBg4.png
+  AssetGenImage get splashBg4 =>
+      const AssetGenImage('assets/images/splashBg4.png');
+
   /// List of all assets
   List<AssetGenImage> get values => [
         agromisLogo,
@@ -195,7 +199,8 @@ class $AssetsImagesGen {
         muziriswhite,
         splashBg1,
         splashBg2,
-        splashBg3
+        splashBg3,
+        splashBg4
       ];
 }
 

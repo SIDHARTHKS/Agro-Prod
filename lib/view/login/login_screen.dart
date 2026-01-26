@@ -13,7 +13,6 @@ import '../../helper/sizer.dart';
 import '../../service/auth_service.dart';
 import '../widget/common_widget.dart';
 import '../widget/animatedexpandcontainer/animated_expand_container.dart';
-import '../splash/splash_screen.dart';
 import '../widget/textformfield/app_textformfield_widget.dart';
 
 class LoginScreen extends AppBaseView<LoginController> {
@@ -44,27 +43,115 @@ class LoginScreen extends AppBaseView<LoginController> {
     return SizedBox.expand(
       child: Stack(
         children: [
-          // 🔵 Splash background (bottom-most)
-
-          // 🟢 Login background (above splash bg)
+          // 1️⃣ Static splash background – never moves
           Positioned.fill(
             child: Image.asset(
-              Assets.images.loginBg1.path,
+              Assets.images.splashBg1.path,
               fit: BoxFit.cover,
             ),
           ),
 
+          // 2️⃣ Login background (behind everything)
+          Positioned.fill(
+            child: Align(
+              alignment: Alignment.bottomCenter,
+              child: FractionallySizedBox(
+                heightFactor: 1.05, // >1 stretches vertically downward
+                widthFactor: 1.0,
+                child: Image.asset(
+                  Assets.images.loginBg1.path,
+                  fit: BoxFit.cover,
+                ),
+              ),
+            ),
+          ),
+
+          Obx(() {
+            return AnimatedOpacity(
+                duration: const Duration(
+                    milliseconds: 1000), // controls how slow it disappears
+                curve: Curves.easeOut,
+                opacity: controller.isRibbonDone.value ? 0.0 : 1.0,
+                child: IgnorePointer(
+                    ignoring: controller.isRibbonDone.value,
+                    child: AnimatedExpandContainer(
+                      onComplete: () => controller.isRibbonDone.value = true,
+                      delay: const Duration(milliseconds: 400),
+                      duration: const Duration(milliseconds: 1400),
+                      initialHeight: Get.height,
+                      finalHeight: 220,
+                      initialWidth: Get.width,
+                      finalWidth: Get.width * 0.4,
+                      alignment: Alignment.topCenter,
+                      child: ClipRRect(
+                        borderRadius: const BorderRadius.only(
+                          bottomLeft: Radius.circular(20),
+                          bottomRight: Radius.circular(20),
+                        ),
+                        child: Stack(
+                          fit: StackFit.expand,
+                          children: [
+                            Image.asset(
+                              Assets.images.splashBg4.path,
+                              fit: BoxFit.cover,
+                            ),
+
+                            // 🔷 Logo animation
+                            Center(
+                              child: TweenAnimationBuilder<double>(
+                                duration: const Duration(milliseconds: 2000),
+                                curve: Curves.easeInOut,
+                                tween: Tween<double>(
+                                  begin: 1.0, // splash size
+                                  end: 1.6, // final header size (tune this)
+                                ),
+                                builder: (context, scale, logoChild) {
+                                  return TweenAnimationBuilder<Alignment>(
+                                    duration:
+                                        const Duration(milliseconds: 1200),
+                                    curve: Curves.easeInOut,
+                                    tween: AlignmentTween(
+                                      begin: Alignment.center,
+                                      end: const Alignment(0, 0.45),
+                                    ),
+                                    builder: (context, alignment, child) {
+                                      return Align(
+                                        alignment: alignment,
+                                        child: Transform.scale(
+                                          scale: scale,
+                                          child: child,
+                                        ),
+                                      );
+                                    },
+                                    child: logoChild,
+                                  );
+                                },
+                                child: FractionallySizedBox(
+                                  widthFactor: 0.35,
+                                  child: Image.asset(
+                                    Assets.images.agromisLogo.path,
+                                    fit: BoxFit.contain,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    )));
+          }),
+
+          // 4️⃣ Login content – slides up in sync
           AnimatedExpandContainer(
-            duration: const Duration(milliseconds: 1200),
-            initialHeight: 0, // start hidden at bottom
-            finalHeight: Get.height, // grow to full height
-            initialWidth: Get.width, // fixed width
-            finalWidth: Get.width, // fixed width (no change)
+            delay: const Duration(milliseconds: 400),
+            duration: const Duration(milliseconds: 1400),
+            initialHeight: 0,
+            finalHeight: Get.height,
+            initialWidth: Get.width,
+            finalWidth: Get.width,
             alignment: Alignment.bottomCenter,
             child: GestureDetector(
-              onTap: () {
-                FocusScope.of(Get.context!).unfocus();
-              },
+              onTap: () => FocusScope.of(Get.context!).unfocus(),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
@@ -74,19 +161,17 @@ class LoginScreen extends AppBaseView<LoginController> {
                       physics: const AlwaysScrollableScrollPhysics(),
                       child: Column(
                         children: [
-                          Center(
-                            child: ClipRRect(
-                              borderRadius: const BorderRadius.only(
-                                bottomLeft: Radius.circular(20),
-                                bottomRight: Radius.circular(20),
-                              ),
-                              child: SizedBox(
-                                height: 220,
-                                width: Get.width * 0.4,
-                                child: LoginScreen.buildHeaderSurface(),
-                              ),
-                            ),
-                          ),
+                          // const SizedBox(height: 220), // space under ribbon
+                          // Static header that replaces the ribbon
+                          Obx(() => AnimatedOpacity(
+                                duration: const Duration(milliseconds: 250),
+                                opacity: controller.isRibbonDone.value ? 1 : 0,
+                                child: SizedBox(
+                                  height: 220,
+                                  width: Get.width * 0.4,
+                                  child: LoginScreen.buildHeaderSurface(),
+                                ),
+                              )),
                           _mobileView(),
                           height(170),
                         ],
@@ -95,20 +180,6 @@ class LoginScreen extends AppBaseView<LoginController> {
                   ),
                 ],
               ),
-            ),
-          ),
-
-          // Splash bg that collapses upward
-          AnimatedExpandContainer(
-            delay: const Duration(seconds: 1), // stays full screen first
-            duration: const Duration(milliseconds: 1200),
-            initialHeight: Get.height, // full screen
-            finalHeight: 220, // header height
-            initialWidth: Get.width,
-            finalWidth: Get.width * 0.4,
-            child: Image.asset(
-              Assets.images.splashBg2.path,
-              fit: BoxFit.cover,
             ),
           ),
         ],
@@ -253,7 +324,7 @@ class LoginScreen extends AppBaseView<LoginController> {
                 ],
               ),
             ),
-            height(30),
+            height(10),
           ],
         );
       }),
@@ -349,44 +420,6 @@ class LoginScreen extends AppBaseView<LoginController> {
     );
   }
 
-  static Widget buildHeaderSurface({
-    bool animateLogo = false,
-    RxBool? showLogo,
-  }) {
-    final logo = Image.asset(
-      Assets.icons.agromisLogo.path,
-    );
-
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        color: AppColorHelper().secondaryTextColor,
-        image: DecorationImage(
-          image: AssetImage(Assets.images.loginTeaBg.path),
-          fit: BoxFit.cover, // fills the card completely
-        ),
-      ),
-      child: Stack(
-        fit: StackFit.expand,
-        children: [
-          Positioned(
-            top: 90,
-            bottom: 20,
-            left: 35,
-            right: 35,
-            child: animateLogo && showLogo != null
-                ? Obx(() => AnimatedOpacity(
-                      duration: const Duration(milliseconds: 800),
-                      curve: Curves.easeInOut,
-                      opacity: showLogo.value ? 1.0 : 0.0,
-                      child: logo,
-                    ))
-                : logo,
-          ),
-        ],
-      ),
-    );
-  }
-
   // Widget _buildShowPassSwitch(VoidCallback ontap) => GestureDetector(
   //     onTap: ontap,
   //     child: Container(
@@ -418,4 +451,35 @@ class LoginScreen extends AppBaseView<LoginController> {
   //                 : null,
   //           ),
   //         )));
+
+  static Widget buildHeaderSurface() {
+    return ClipRRect(
+      borderRadius: const BorderRadius.only(
+        bottomLeft: Radius.circular(20),
+        bottomRight: Radius.circular(20),
+      ),
+      child: Stack(
+        fit: StackFit.expand,
+        children: [
+          // Background exactly like the ribbon’s final frame
+          Image.asset(
+            Assets.images.splashBg4.path,
+            fit: BoxFit.cover,
+          ),
+
+          // Final-position logo (no animation here)
+          Align(
+            alignment: const Alignment(0, 0.55), // same as ribbon end
+            child: FractionallySizedBox(
+              widthFactor: 0.55, // same visual size as ribbon end
+              child: Image.asset(
+                Assets.images.agromisLogo.path,
+                fit: BoxFit.contain,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 }

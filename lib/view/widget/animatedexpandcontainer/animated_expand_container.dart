@@ -9,10 +9,13 @@ class AnimatedExpandContainer extends StatefulWidget {
   final double initialWidth;
   final double finalWidth;
   final Alignment alignment;
+  final bool clipChild; // new
+  final VoidCallback? onComplete;
 
   const AnimatedExpandContainer({
-    Key? key,
+    super.key,
     required this.child,
+    this.onComplete,
     this.duration = const Duration(seconds: 1),
     this.initialHeight = 0.0,
     this.delay = const Duration(milliseconds: 800),
@@ -20,7 +23,8 @@ class AnimatedExpandContainer extends StatefulWidget {
     this.initialWidth = double.infinity,
     this.finalWidth = 0.0,
     this.alignment = Alignment.topCenter,
-  }) : super(key: key);
+    this.clipChild = false,
+  });
 
   @override
   State<AnimatedExpandContainer> createState() =>
@@ -54,6 +58,11 @@ class _AnimatedExpandContainerState extends State<AnimatedExpandContainer>
     Future.delayed(widget.delay, () {
       if (mounted) {
         _controller.forward();
+
+        // 👇 notify after animation finishes
+        Future.delayed(widget.duration, () {
+          if (mounted) widget.onComplete?.call();
+        });
       }
     });
   }
@@ -76,7 +85,9 @@ class _AnimatedExpandContainerState extends State<AnimatedExpandContainer>
             height: _heightAnimation.value,
 
             color: Colors.transparent, // Set the desired background color
-            child: widget.child,
+            child: widget.clipChild
+                ? ClipRect(child: widget.child) // ✅ only when enabled
+                : widget.child,
           ),
         );
       },
