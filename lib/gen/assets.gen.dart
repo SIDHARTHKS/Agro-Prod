@@ -150,6 +150,10 @@ class $AssetsImagesGen {
   AssetGenImage get agromisLogo =>
       const AssetGenImage('assets/images/agromisLogo.png');
 
+  /// File path: assets/images/headerBg.png
+  AssetGenImage get headerBg =>
+      const AssetGenImage('assets/images/headerBg.png');
+
   /// File path: assets/images/loginBg.png
   AssetGenImage get loginBg => const AssetGenImage('assets/images/loginBg.png');
 
@@ -191,6 +195,7 @@ class $AssetsImagesGen {
   /// List of all assets
   List<AssetGenImage> get values => [
         agromisLogo,
+        headerBg,
         loginBg,
         loginBg1,
         loginBg2,

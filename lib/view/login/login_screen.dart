@@ -66,6 +66,44 @@ class LoginScreen extends AppBaseView<LoginController> {
             ),
           ),
 
+          TweenAnimationBuilder<double>(
+            duration: const Duration(milliseconds: 1400),
+            curve: Curves.easeOutCubic,
+            tween: Tween(begin: -80.0, end: 0.0), // start 80px above
+            builder: (context, dy, child) {
+              return Transform.translate(
+                offset: Offset(0, dy),
+                child: Opacity(
+                  opacity: 1 - (dy.abs() / 80).clamp(0, 1),
+                  child: child,
+                ),
+              );
+            },
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                appText(
+                  "Let's Get Started",
+                  fontSize: 25,
+                  fontWeight: FontWeight.w600,
+                  color: AppColorHelper().primaryTextColor,
+                ),
+                const SizedBox(height: 10),
+                FractionallySizedBox(
+                  widthFactor: 0.90,
+                  child: Center(
+                    child: appText(
+                      'Login to manage and track your business journey',
+                      textAlign: TextAlign.center,
+                      fontSize: 14,
+                      color: AppColorHelper().primaryTextColor,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+
           Obx(() {
             return AnimatedOpacity(
                 duration: const Duration(
@@ -111,7 +149,7 @@ class LoginScreen extends AppBaseView<LoginController> {
                                         const Duration(milliseconds: 1200),
                                     curve: Curves.easeInOut,
                                     tween: AlignmentTween(
-                                      begin: Alignment.center,
+                                      begin: const Alignment(0, 1),
                                       end: const Alignment(0, 0.45),
                                     ),
                                     builder: (context, alignment, child) {
@@ -140,7 +178,6 @@ class LoginScreen extends AppBaseView<LoginController> {
                       ),
                     )));
           }),
-
           // 4️⃣ Login content – slides up in sync
           AnimatedExpandContainer(
             delay: const Duration(milliseconds: 400),
@@ -164,7 +201,7 @@ class LoginScreen extends AppBaseView<LoginController> {
                           // const SizedBox(height: 220), // space under ribbon
                           // Static header that replaces the ribbon
                           Obx(() => AnimatedOpacity(
-                                duration: const Duration(milliseconds: 250),
+                                duration: const Duration(milliseconds: 500),
                                 opacity: controller.isRibbonDone.value ? 1 : 0,
                                 child: SizedBox(
                                   height: 220,
@@ -173,7 +210,6 @@ class LoginScreen extends AppBaseView<LoginController> {
                                 ),
                               )),
                           _mobileView(),
-                          height(170),
                         ],
                       ),
                     ),
@@ -196,22 +232,40 @@ class LoginScreen extends AppBaseView<LoginController> {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             height(40),
-            appText(
-              "Let's Get Started",
-              fontSize: 25,
-              fontWeight: FontWeight.w600,
-              color: AppColorHelper().primaryTextColor,
-            ),
-            height(10),
-            FractionallySizedBox(
-              widthFactor: 0.90,
-              child: Center(
-                child: appText(
-                    'Login to manage and track your business journey',
-                    textAlign: TextAlign.center,
-                    fontSize: 14,
+            TweenAnimationBuilder<double>(
+              duration: const Duration(milliseconds: 1400),
+              curve: Curves.easeOutCubic,
+              tween: Tween(begin: -80.0, end: 0.0),
+              builder: (context, dy, child) {
+                return Transform.translate(
+                  offset: Offset(0, dy),
+                  child: Opacity(
+                    opacity: (1 - (dy.abs() / 80)).clamp(0.0, 1.0),
+                    child: child,
+                  ),
+                );
+              },
+              child: Column(
+                children: [
+                  appText(
+                    "Let's Get Started",
+                    fontSize: 25,
+                    fontWeight: FontWeight.w600,
                     color: AppColorHelper().primaryTextColor,
-                    fontWeight: FontWeight.normal),
+                  ),
+                  height(10),
+                  FractionallySizedBox(
+                    widthFactor: 0.90,
+                    child: Center(
+                      child: appText(
+                        'Login to manage and track your business journey',
+                        textAlign: TextAlign.center,
+                        fontSize: 14,
+                        color: AppColorHelper().primaryTextColor,
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
             height(100),
@@ -324,7 +378,6 @@ class LoginScreen extends AppBaseView<LoginController> {
                 ],
               ),
             ),
-            height(10),
           ],
         );
       }),
@@ -463,15 +516,15 @@ class LoginScreen extends AppBaseView<LoginController> {
         children: [
           // Background exactly like the ribbon’s final frame
           Image.asset(
-            Assets.images.splashBg4.path,
+            Assets.images.headerBg.path,
             fit: BoxFit.cover,
           ),
 
           // Final-position logo (no animation here)
           Align(
-            alignment: const Alignment(0, 0.55), // same as ribbon end
+            alignment: const Alignment(0, 0.54), // same as ribbon end
             child: FractionallySizedBox(
-              widthFactor: 0.55, // same visual size as ribbon end
+              widthFactor: 0.56, // same visual size as ribbon end
               child: Image.asset(
                 Assets.images.agromisLogo.path,
                 fit: BoxFit.contain,

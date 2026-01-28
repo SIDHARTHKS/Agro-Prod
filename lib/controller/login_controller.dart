@@ -66,6 +66,7 @@ class LoginController extends AppBaseController {
 
   final RxDouble bgOffset = 0.0.obs;
   final RxBool isRibbonDone = false.obs;
+  final RxBool introAnimDone = false.obs;
 
   @override
   Future<void> onInit() async {
