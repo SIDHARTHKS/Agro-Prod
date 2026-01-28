@@ -66,41 +66,56 @@ class LoginScreen extends AppBaseView<LoginController> {
             ),
           ),
 
-          TweenAnimationBuilder<double>(
+          AnimatedExpandContainer(
+            onComplete: () => controller.introAnimDone.value = true,
+            delay: const Duration(milliseconds: 400),
             duration: const Duration(milliseconds: 1400),
-            curve: Curves.easeOutCubic,
-            tween: Tween(begin: -80.0, end: 0.0), // start 80px above
-            builder: (context, dy, child) {
-              return Transform.translate(
-                offset: Offset(0, dy),
-                child: Opacity(
-                  opacity: 1 - (dy.abs() / 80).clamp(0, 1),
-                  child: child,
+            initialHeight: 0,
+            finalHeight: 376,
+            initialWidth: Get.width,
+            finalWidth: Get.width,
+            alignment: Alignment.topCenter,
+            clipChild: true,
+            child: ClipRect(
+              child: Align(
+                alignment: Alignment.bottomCenter,
+                child: OverflowBox(
+                  minHeight: 0,
+                  maxHeight: double.infinity,
+                  alignment: Alignment.bottomCenter,
+                  child: Obx(() => AnimatedOpacity(
+                        duration: const Duration(milliseconds: 300),
+                        opacity: controller.introAnimDone.value ? 0.0 : 1.0,
+                        child: SizedBox(
+                          height: 96, // real height of your text block
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              appText(
+                                "Let's Get Started",
+                                fontSize: 25,
+                                fontWeight: FontWeight.w600,
+                                color: AppColorHelper().primaryTextColor,
+                              ),
+                              const SizedBox(height: 20),
+                              appText(
+                                "Login to manage and track your business",
+                                textAlign: TextAlign.center,
+                                fontSize: 14,
+                                color: AppColorHelper().primaryTextColor,
+                              ),
+                              appText(
+                                "journey",
+                                textAlign: TextAlign.center,
+                                fontSize: 14,
+                                color: AppColorHelper().primaryTextColor,
+                              ),
+                            ],
+                          ),
+                        ),
+                      )),
                 ),
-              );
-            },
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                appText(
-                  "Let's Get Started",
-                  fontSize: 25,
-                  fontWeight: FontWeight.w600,
-                  color: AppColorHelper().primaryTextColor,
-                ),
-                const SizedBox(height: 10),
-                FractionallySizedBox(
-                  widthFactor: 0.90,
-                  child: Center(
-                    child: appText(
-                      'Login to manage and track your business journey',
-                      textAlign: TextAlign.center,
-                      fontSize: 14,
-                      color: AppColorHelper().primaryTextColor,
-                    ),
-                  ),
-                ),
-              ],
+              ),
             ),
           ),
 
@@ -149,7 +164,7 @@ class LoginScreen extends AppBaseView<LoginController> {
                                         const Duration(milliseconds: 1200),
                                     curve: Curves.easeInOut,
                                     tween: AlignmentTween(
-                                      begin: const Alignment(0, 1),
+                                      begin: const Alignment(0, -0.1),
                                       end: const Alignment(0, 0.45),
                                     ),
                                     builder: (context, alignment, child) {
@@ -232,42 +247,35 @@ class LoginScreen extends AppBaseView<LoginController> {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             height(40),
-            TweenAnimationBuilder<double>(
-              duration: const Duration(milliseconds: 1400),
-              curve: Curves.easeOutCubic,
-              tween: Tween(begin: -80.0, end: 0.0),
-              builder: (context, dy, child) {
-                return Transform.translate(
-                  offset: Offset(0, dy),
-                  child: Opacity(
-                    opacity: (1 - (dy.abs() / 80)).clamp(0.0, 1.0),
-                    child: child,
-                  ),
-                );
-              },
-              child: Column(
-                children: [
-                  appText(
-                    "Let's Get Started",
-                    fontSize: 25,
-                    fontWeight: FontWeight.w600,
-                    color: AppColorHelper().primaryTextColor,
-                  ),
-                  height(10),
-                  FractionallySizedBox(
-                    widthFactor: 0.90,
-                    child: Center(
-                      child: appText(
-                        'Login to manage and track your business journey',
+            Obx(() => AnimatedOpacity(
+                  duration: const Duration(milliseconds: 300),
+                  opacity: controller.introAnimDone.value
+                      ? 1.0
+                      : 0.0, // 👈 hidden first
+                  child: Column(
+                    children: [
+                      appText(
+                        "Let's Get Started",
+                        fontSize: 25,
+                        fontWeight: FontWeight.w600,
+                        color: AppColorHelper().primaryTextColor,
+                      ),
+                      height(20),
+                      appText(
+                        "Login to manage and track your business",
                         textAlign: TextAlign.center,
                         fontSize: 14,
                         color: AppColorHelper().primaryTextColor,
                       ),
-                    ),
+                      appText(
+                        "journey",
+                        textAlign: TextAlign.center,
+                        fontSize: 14,
+                        color: AppColorHelper().primaryTextColor,
+                      ),
+                    ],
                   ),
-                ],
-              ),
-            ),
+                )),
             height(100),
             Form(
               key: controller.form,
