@@ -95,7 +95,7 @@ class TextFormWidget extends StatelessWidget {
     return Obx(() {
       final bool isEnabled = rxEnabled?.value ?? true;
       final bool obscure = enableObscureToggle
-          ? !localObscure.value
+          ? localObscure.value
           : (rxObscureText?.value ?? false);
 
       return SizedBox(

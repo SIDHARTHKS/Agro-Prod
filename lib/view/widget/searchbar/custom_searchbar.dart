@@ -12,6 +12,7 @@ class CustomSearchBar extends StatefulWidget {
   final String hintText;
   final String? Function(String?)? validator;
   final Function(String)? action;
+  final VoidCallback? onFilterTap;
 
   const CustomSearchBar({
     super.key,
@@ -21,6 +22,7 @@ class CustomSearchBar extends StatefulWidget {
     this.onSubmit,
     this.validator,
     this.action,
+    this.onFilterTap,
   });
 
   @override
@@ -143,7 +145,7 @@ class _CustomSearchBarState extends State<CustomSearchBar> {
       ),
       const SizedBox(width: 10),
       GestureDetector(
-          onTap: () {},
+          onTap: widget.onFilterTap,
           child: Container(
             width: 50,
             decoration: BoxDecoration(

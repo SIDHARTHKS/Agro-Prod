@@ -22,7 +22,6 @@ class LoginScreen extends AppBaseView<LoginController> {
   final GlobalKey _userFieldKey = GlobalKey();
   final GlobalKey _passFieldKey = GlobalKey();
 
-  //
   //static const double headerInset = 130;
   static final RxBool showHeader = true.obs;
 
@@ -45,10 +44,16 @@ class LoginScreen extends AppBaseView<LoginController> {
         children: [
           // 1️⃣ Static splash background – never moves
           Positioned.fill(
-            child: Image.asset(
-              Assets.images.splashBg1.path,
-              fit: BoxFit.cover,
-            ),
+            child: Obx(() {
+              if (controller.introAnimDone.value) {
+                return const SizedBox.shrink(); // 💥 instant removal
+              }
+
+              return Image.asset(
+                Assets.images.splashBg1.path,
+                fit: BoxFit.cover,
+              );
+            }),
           ),
 
           // 2️⃣ Login background (behind everything)
@@ -56,7 +61,7 @@ class LoginScreen extends AppBaseView<LoginController> {
             child: Align(
               alignment: Alignment.bottomCenter,
               child: FractionallySizedBox(
-                heightFactor: 1.05, // >1 stretches vertically downward
+                heightFactor: 1.0, // >1 stretches vertically downward
                 widthFactor: 1.0,
                 child: Image.asset(
                   Assets.images.loginBg1.path,
@@ -67,11 +72,16 @@ class LoginScreen extends AppBaseView<LoginController> {
           ),
 
           AnimatedExpandContainer(
-            onComplete: () => controller.introAnimDone.value = true,
+            onComplete: () {
+              // trigger fade slightly BEFORE completion visually
+              Future.microtask(() {
+                controller.introAnimDone.value = true;
+              });
+            },
             delay: const Duration(milliseconds: 400),
             duration: const Duration(milliseconds: 1400),
             initialHeight: 0,
-            finalHeight: 376,
+            finalHeight: 396,
             initialWidth: Get.width,
             finalWidth: Get.width,
             alignment: Alignment.topCenter,
@@ -93,21 +103,23 @@ class LoginScreen extends AppBaseView<LoginController> {
                             children: [
                               appText(
                                 "Let's Get Started",
-                                fontSize: 25,
+                                fontSize: 26,
                                 fontWeight: FontWeight.w600,
                                 color: AppColorHelper().primaryTextColor,
                               ),
-                              const SizedBox(height: 20),
+                              const SizedBox(height: 9),
                               appText(
                                 "Login to manage and track your business",
                                 textAlign: TextAlign.center,
-                                fontSize: 14,
+                                fontWeight: FontWeight.normal,
+                                fontSize: 13,
                                 color: AppColorHelper().primaryTextColor,
                               ),
                               appText(
                                 "journey",
                                 textAlign: TextAlign.center,
-                                fontSize: 14,
+                                fontWeight: FontWeight.normal,
+                                fontSize: 13,
                                 color: AppColorHelper().primaryTextColor,
                               ),
                             ],
@@ -122,19 +134,19 @@ class LoginScreen extends AppBaseView<LoginController> {
           Obx(() {
             return AnimatedOpacity(
                 duration: const Duration(
-                    milliseconds: 1000), // controls how slow it disappears
+                    milliseconds: 3500), // controls how slow it disappears
                 curve: Curves.easeOut,
                 opacity: controller.isRibbonDone.value ? 0.0 : 1.0,
                 child: IgnorePointer(
                     ignoring: controller.isRibbonDone.value,
                     child: AnimatedExpandContainer(
                       onComplete: () => controller.isRibbonDone.value = true,
-                      delay: const Duration(milliseconds: 400),
+                      delay: const Duration(milliseconds: 500),
                       duration: const Duration(milliseconds: 1400),
                       initialHeight: Get.height,
-                      finalHeight: 220,
+                      finalHeight: 240,
                       initialWidth: Get.width,
-                      finalWidth: Get.width * 0.4,
+                      finalWidth: Get.width * 0.41,
                       alignment: Alignment.topCenter,
                       child: ClipRRect(
                         borderRadius: const BorderRadius.only(
@@ -148,42 +160,27 @@ class LoginScreen extends AppBaseView<LoginController> {
                               Assets.images.splashBg4.path,
                               fit: BoxFit.cover,
                             ),
-
-                            // 🔷 Logo animation
                             Center(
-                              child: TweenAnimationBuilder<double>(
-                                duration: const Duration(milliseconds: 2000),
-                                curve: Curves.easeInOut,
-                                tween: Tween<double>(
-                                  begin: 1.0, // splash size
-                                  end: 1.6, // final header size (tune this)
-                                ),
-                                builder: (context, scale, logoChild) {
-                                  return TweenAnimationBuilder<Alignment>(
-                                    duration:
-                                        const Duration(milliseconds: 1200),
-                                    curve: Curves.easeInOut,
-                                    tween: AlignmentTween(
-                                      begin: const Alignment(0, -0.1),
-                                      end: const Alignment(0, 0.45),
+                              child: AnimatedAlign(
+                                duration: const Duration(milliseconds: 2400),
+                                curve: Curves.easeOutCubic,
+                                alignment: controller.moveLogo.value
+                                    ? const Alignment(
+                                        0, 0.56) // final header alignment
+                                    : const Alignment(0, 0), // splash center
+                                child: AnimatedScale(
+                                  duration: const Duration(milliseconds: 2400),
+                                  curve: Curves.easeOutCubic,
+                                  scale: controller.moveLogo.value
+                                      ? (0.60 / 0.41) // 🔑 exact scale needed
+                                      : 1.0,
+                                  child: FractionallySizedBox(
+                                    widthFactor:
+                                        0.41, // ✅ splash logo size (LOCKED)
+                                    child: Image.asset(
+                                      Assets.images.agromisLogo.path,
+                                      fit: BoxFit.contain,
                                     ),
-                                    builder: (context, alignment, child) {
-                                      return Align(
-                                        alignment: alignment,
-                                        child: Transform.scale(
-                                          scale: scale,
-                                          child: child,
-                                        ),
-                                      );
-                                    },
-                                    child: logoChild,
-                                  );
-                                },
-                                child: FractionallySizedBox(
-                                  widthFactor: 0.35,
-                                  child: Image.asset(
-                                    Assets.images.agromisLogo.path,
-                                    fit: BoxFit.contain,
                                   ),
                                 ),
                               ),
@@ -195,7 +192,7 @@ class LoginScreen extends AppBaseView<LoginController> {
           }),
           // 4️⃣ Login content – slides up in sync
           AnimatedExpandContainer(
-            delay: const Duration(milliseconds: 400),
+            delay: const Duration(milliseconds: 500),
             duration: const Duration(milliseconds: 1400),
             initialHeight: 0,
             finalHeight: Get.height,
@@ -208,25 +205,35 @@ class LoginScreen extends AppBaseView<LoginController> {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   Expanded(
-                    child: SingleChildScrollView(
-                      controller: controller.scrollController,
-                      physics: const AlwaysScrollableScrollPhysics(),
-                      child: Column(
-                        children: [
-                          // const SizedBox(height: 220), // space under ribbon
-                          // Static header that replaces the ribbon
-                          Obx(() => AnimatedOpacity(
-                                duration: const Duration(milliseconds: 500),
-                                opacity: controller.isRibbonDone.value ? 1 : 0,
-                                child: SizedBox(
-                                  height: 220,
-                                  width: Get.width * 0.4,
-                                  child: LoginScreen.buildHeaderSurface(),
-                                ),
-                              )),
-                          _mobileView(),
-                        ],
-                      ),
+                    child: Builder(
+                      builder: (context) {
+                        final isKeyboardOpen =
+                            MediaQuery.of(context).viewInsets.bottom > 0;
+
+                        final content = Column(
+                          children: [
+                            Obx(() => AnimatedOpacity(
+                                  duration: const Duration(milliseconds: 500),
+                                  opacity:
+                                      controller.isRibbonDone.value ? 1 : 0,
+                                  child: SizedBox(
+                                    height: 240,
+                                    width: Get.width * 0.41,
+                                    child: LoginScreen.buildHeaderSurface(),
+                                  ),
+                                )),
+                            _mobileView(),
+                          ],
+                        );
+
+                        return SingleChildScrollView(
+                          controller: controller.scrollController,
+                          physics: isKeyboardOpen
+                              ? const BouncingScrollPhysics() // keyboard open → allow scroll
+                              : const NeverScrollableScrollPhysics(), // keyboard closed → lock
+                          child: content,
+                        );
+                      },
                     ),
                   ),
                 ],
@@ -240,278 +247,223 @@ class LoginScreen extends AppBaseView<LoginController> {
 
   Padding _mobileView() {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 35, vertical: 20),
+      padding: const EdgeInsets.symmetric(horizontal: 45),
       child: Obx(() {
-        return Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            height(40),
-            Obx(() => AnimatedOpacity(
+        final rawInset = MediaQuery.of(Get.context!).viewInsets.bottom;
+        final isKeyboardOpen = rawInset > 0;
+        final keyboardInset =
+            isKeyboardOpen ? rawInset.clamp(250, 320).toDouble() : 0.0;
+
+        if (isKeyboardOpen && !controller.didAutoScroll.value) {
+          controller.didAutoScroll.value = true;
+
+          // Wait for keyboard + ribbon layout to settle
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              if (controller.scrollController.hasClients) {
+                controller.scrollController.animateTo(
+                  95,
                   duration: const Duration(milliseconds: 300),
-                  opacity: controller.introAnimDone.value
-                      ? 1.0
-                      : 0.0, // 👈 hidden first
-                  child: Column(
-                    children: [
-                      appText(
-                        "Let's Get Started",
-                        fontSize: 25,
-                        fontWeight: FontWeight.w600,
-                        color: AppColorHelper().primaryTextColor,
-                      ),
-                      height(20),
-                      appText(
-                        "Login to manage and track your business",
-                        textAlign: TextAlign.center,
-                        fontSize: 14,
-                        color: AppColorHelper().primaryTextColor,
-                      ),
-                      appText(
-                        "journey",
-                        textAlign: TextAlign.center,
-                        fontSize: 14,
-                        color: AppColorHelper().primaryTextColor,
-                      ),
-                    ],
-                  ),
-                )),
-            height(100),
-            Form(
-              key: controller.form,
-              child: Column(
-                children: [
-                  _buildUsernameField(),
-                  height(22),
-                  _buildPasswordField(),
+                  curve: Curves.easeOutCubic,
+                );
+              }
+            });
+          });
+        }
 
-                  // _showPasswordContainer(),
-                  height(Platform.isIOS ? 50 : 45),
-                  buttonContainer(
-                    radius: 10,
-                    height: 70,
-                    color: AppColorHelper().primaryColor,
-                    controller.rxIsLoading.value
-                        ? buttonLoader()
-                        : appText(
-                            login.tr,
-                            fontSize: 18,
-                            color: AppColorHelper().textColor,
-                            fontWeight: FontWeight.w500,
-                          ),
-                    //           onPressed: () {
+        if (!isKeyboardOpen && controller.didAutoScroll.value) {
+          controller.didAutoScroll.value = false;
 
-                    // }
-                    onPressed: () async {
-                      if (controller.rxIsLoading.value) return;
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (controller.scrollController.hasClients) {
+              controller.scrollController.animateTo(
+                0.0,
+                duration: const Duration(milliseconds: 300),
+                curve: Curves.easeOutCubic,
+              );
+            }
+          });
+        }
 
-                      await controller.signIn().then((success) {
-                        if (success) {
-                          WidgetsBinding.instance.addPostFrameCallback((_) {
-                            navigateToAndRemoveAll(
-                              homePageRoute,
-                            );
-                          });
-                        } else {
-                          showErrorSnackbar(
-                              title: "Invalid Credentials",
-                              message:
-                                  "Login failed. Please check your username and password.");
-                        }
-                      });
-                    },
-                  ),
-                  height(20),
-
-                  GestureDetector(
-                    onTap: () async {
-                      // controller.handleForgotPassword().then((success) async {
-                      //   if (success) {
-                      //     await showModalBottomSheet(
-                      //       context: Get.context!,
-                      //       isScrollControlled: true,
-                      //       backgroundColor: Colors.transparent,
-                      //       builder: (context) {
-                      //         return Padding(
-                      //           // This padding pushes the sheet up when the keyboard appears
-                      //           padding: EdgeInsets.only(
-                      //             bottom:
-                      //                 MediaQuery.of(context).viewInsets.bottom,
-                      //           ),
-                      //           child: ClipRRect(
-                      //             borderRadius: const BorderRadius.only(
-                      //               topLeft: Radius.circular(20),
-                      //               topRight: Radius.circular(20),
-                      //             ),
-                      //             child: SizedBox(
-                      //               height: Platform.isAndroid
-                      //                   ? (Get.height * 0.52)
-                      //                   : (Get.height * 0.58),
-                      //               child: const ForgetPasswordBottomsheet(),
-                      //             ),
-                      //           ),
-                      //         );
-                      //       },
-                      //     );
-                      //   }
-                      // });
-                    },
-                    child: Stack(
-                      clipBehavior: Clip.none,
-                      alignment: Alignment.centerLeft,
+        return AnimatedPadding(
+          duration: const Duration(milliseconds: 250),
+          curve: Curves.easeOut,
+          padding: EdgeInsets.only(
+            top: 20,
+            bottom: isKeyboardOpen ? keyboardInset : 20,
+          ),
+          child: Column(
+            mainAxisAlignment: isKeyboardOpen
+                ? MainAxisAlignment.start
+                : MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              SizedBox(height: isKeyboardOpen ? 10 : 40),
+              Obx(() => AnimatedOpacity(
+                    duration: const Duration(milliseconds: 300),
+                    opacity: controller.introAnimDone.value ? 1.0 : 0.0,
+                    child: Column(
                       children: [
-                        Text(
-                          forgetPassworddialogue.tr,
-                          style: TextStyle(
-                              fontSize: 14,
-                              color: AppColorHelper().primaryTextColor,
-                              fontWeight: FontWeight.normal,
-                              fontFamily: 'Mona Sans'),
+                        appText(
+                          "Let's Get Started",
+                          fontSize: 26,
+                          fontWeight: FontWeight.w600,
+                          color: AppColorHelper().primaryTextColor,
                         ),
-                        // Positioned(
-                        //   bottom:
-                        //       -1, // 👈 increase this value to move the underline lower
-                        //   child: Container(
-                        //     height: 1,
-                        //     width: forgetPassworddialogue.tr.length *
-                        //         6.5, // adjusts underline width
-                        //     color: AppColorHelper()
-                        //         .primaryTextColor
-                        //         .withValues(alpha: 0.5),
-                        //   ),
-                        // ),
+                        SizedBox(height: isKeyboardOpen ? 6 : 9),
+                        appText(
+                          "Login to manage and track your business",
+                          textAlign: TextAlign.center,
+                          fontSize: 13,
+                          fontWeight: FontWeight.normal,
+                          color: AppColorHelper().primaryTextColor,
+                        ),
+                        appText(
+                          "journey",
+                          textAlign: TextAlign.center,
+                          fontSize: 13,
+                          fontWeight: FontWeight.normal,
+                          color: AppColorHelper().primaryTextColor,
+                        ),
                       ],
                     ),
-                  )
-                ],
+                  )),
+              SizedBox(height: isKeyboardOpen ? 20 : 91),
+              Form(
+                key: controller.form,
+                child: Column(
+                  children: [
+                    _buildUsernameField(),
+                    SizedBox(height: isKeyboardOpen ? 12 : 22),
+                    _buildPasswordField(),
+                    SizedBox(
+                      height: isKeyboardOpen ? 20 : (Platform.isIOS ? 50 : 45),
+                    ),
+                    buttonContainer(
+                      radius: 10,
+                      height: 68,
+                      color: AppColorHelper().primaryColor,
+                      controller.rxIsLoading.value
+                          ? buttonLoader()
+                          : appText(
+                              login.tr,
+                              fontSize: 18,
+                              color: AppColorHelper().textColor,
+                              fontWeight: FontWeight.w500,
+                            ),
+                      onPressed: () async {
+                        if (controller.rxIsLoading.value) return;
+
+                        await controller.signIn().then((success) {
+                          if (success) {
+                            WidgetsBinding.instance.addPostFrameCallback((_) {
+                              navigateToAndRemoveAll(homePageRoute);
+                            });
+                          } else {
+                            showErrorSnackbar(
+                              title: "Invalid Credentials",
+                              message:
+                                  "Login failed. Please check your username and password.",
+                            );
+                          }
+                        });
+                      },
+                    ),
+                    SizedBox(height: isKeyboardOpen ? 8 : 18),
+                    GestureDetector(
+                      onTap: () async {},
+                      child: Text(
+                        forgetPassworddialogue.tr,
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: AppColorHelper().primaryTextColor,
+                          fontWeight: FontWeight.normal,
+                          fontFamily: 'Mona Sans',
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         );
       }),
     );
   }
 
   Widget _buildUsernameField() {
-    return Focus(
-      child: Column(
-        key: _userFieldKey,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Padding(
-            padding: const EdgeInsets.only(left: 0, bottom: 10),
-            child: appText(
-              username,
-              fontSize: 13,
-              fontWeight: FontWeight.normal,
-              color: AppColorHelper().primaryTextColor,
-            ),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.only(bottom: 10),
+          child: appText(
+            username,
+            fontSize: 13,
+            fontWeight: FontWeight.normal,
+            color: AppColorHelper().primaryTextColor,
           ),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-            decoration: BoxDecoration(
-              color: AppColorHelper().cardColor,
-              border: Border.all(
-                color: AppColorHelper().primaryTextColor.withValues(alpha: 0.2),
-              ),
-              borderRadius: BorderRadius.circular(10),
+        ),
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+          decoration: BoxDecoration(
+            color: AppColorHelper().cardColor,
+            border: Border.all(
+              color: AppColorHelper().primaryTextColor.withValues(alpha: 0.2),
             ),
-            child: TextFormWidget(
-              controller: controller.userController,
-              focusNode: controller.userFocusNode, // only here
-              nextFocusNode: controller.passwordFocusNode,
-              label: null,
-              height: 40,
-            ),
+            borderRadius: BorderRadius.circular(10),
           ),
-        ],
-      ),
+          child: TextFormWidget(
+            controller: controller.userController,
+            focusNode: controller.userFocusNode,
+            nextFocusNode: controller.passwordFocusNode,
+            height: 40,
+            label: null,
+          ),
+        ),
+      ],
     );
   }
 
   Widget _buildPasswordField() {
-    final isFocused = controller.isPasswordFieldFocused.value;
-
-    return Focus(
-      child: Column(
-        key: _passFieldKey,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Padding(
-            padding: const EdgeInsets.only(left: 0, bottom: 10),
-            child: appText(
-              password.tr,
-              fontSize: 13,
-              fontWeight: FontWeight.normal,
-              color: AppColorHelper().primaryTextColor,
-            ),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.only(bottom: 10),
+          child: appText(
+            password.tr,
+            fontSize: 13,
+            fontWeight: FontWeight.normal,
+            color: AppColorHelper().primaryTextColor,
           ),
-          Container(
-            padding: EdgeInsets.only(
-              top: isFocused ? 8.0 : 6.0,
-              bottom: isFocused ? 8.0 : 6.0,
-              left: 10,
-              right: 3,
+        ),
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+          decoration: BoxDecoration(
+            color: AppColorHelper().cardColor,
+            border: Border.all(
+              color: controller.isPasswordValid.value
+                  ? AppColorHelper().primaryTextColor.withValues(alpha: 0.2)
+                  : AppColorHelper().errorBorderColor,
             ),
-            decoration: BoxDecoration(
-              color: AppColorHelper().cardColor,
-              border: controller.isPasswordValid.value
-                  ? Border.all(
-                      color: AppColorHelper()
-                          .primaryTextColor
-                          .withValues(alpha: 0.2),
-                    )
-                  : Border.all(color: AppColorHelper().errorBorderColor),
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: TextFormWidget(
-              controller: controller.passwordController,
-              focusNode: controller.passwordFocusNode, // only here
-              borderColor: AppColorHelper().transparentColor,
-              label: null,
-              textColor: AppColorHelper().primaryTextColor,
-              height: 40,
-              validator: (value) => value!.trim().isEmpty ? null : null,
-              rxObscureText: controller.rxhidePassword,
-              enableObscureToggle: true,
-            ),
+            borderRadius: BorderRadius.circular(10),
           ),
-        ],
-      ),
+          child: TextFormWidget(
+            controller: controller.passwordController,
+            focusNode: controller.passwordFocusNode,
+            height: 40,
+            label: null,
+            textColor: AppColorHelper().primaryTextColor,
+            //  rxObscureText: controller.rxShowPassword.map((v) => !v).obs,
+            rxObscureText: controller.rxhidePassword,
+            enableObscureToggle: true,
+          ),
+        ),
+      ],
     );
   }
-
-  // Widget _buildShowPassSwitch(VoidCallback ontap) => GestureDetector(
-  //     onTap: ontap,
-  //     child: Container(
-  //         decoration: BoxDecoration(
-  //             color: AppColorHelper().cardColor,
-  //             borderRadius: BorderRadius.circular(4)),
-  //         width: 20,
-  //         height: 20, // match thumb size for better centering
-  //         child: GestureDetector(
-  //           onTap: ontap,
-  //           child: AnimatedContainer(
-  //             duration: const Duration(milliseconds: 200),
-  //             decoration: BoxDecoration(
-  //               color: !controller.rxhidePassword.value
-  //                   ? AppColorHelper().primaryColor
-  //                   : AppColorHelper().transparentColor,
-  //               borderRadius: BorderRadius.circular(4),
-  //               border: Border.all(
-  //                 color: AppColorHelper().borderColor.withValues(alpha: 0.6),
-  //                 width: 1,
-  //               ),
-  //             ),
-  //             child: !controller.rxhidePassword.value
-  //                 ? Icon(
-  //                     Icons.check,
-  //                     color: AppColorHelper().textColor,
-  //                     size: 18,
-  //                   )
-  //                 : null,
-  //           ),
-  //         )));
 
   static Widget buildHeaderSurface() {
     return ClipRRect(
@@ -530,9 +482,9 @@ class LoginScreen extends AppBaseView<LoginController> {
 
           // Final-position logo (no animation here)
           Align(
-            alignment: const Alignment(0, 0.54), // same as ribbon end
+            alignment: const Alignment(0, 0.56), // same as ribbon end
             child: FractionallySizedBox(
-              widthFactor: 0.56, // same visual size as ribbon end
+              widthFactor: 0.60, // same visual size as ribbon end
               child: Image.asset(
                 Assets.images.agromisLogo.path,
                 fit: BoxFit.contain,

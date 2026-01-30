@@ -1,14 +1,15 @@
 import 'package:agro/gen/assets.gen.dart';
-
 import 'package:agro/view/widget/searchbar/custom_searchbar.dart';
 import 'package:flutter_dash/flutter_dash.dart';
 import 'package:flutter/material.dart';
-
 import '../../../../helper/color_helper.dart';
 import 'package:agro/model/delayed_payments_model.dart';
 import 'package:intl/intl.dart';
 import '../../../../helper/sizer.dart';
 import '../../../widget/common_widget.dart';
+import '../../../../binding/delayed_pay_filter_binding.dart';
+import 'package:get/get.dart';
+import '../widgets/delayed_pay_filter_view.dart';
 
 class DelayedPaymentSharedWidgets {
   Widget heading(String title) {
@@ -67,7 +68,13 @@ class DelayedPaymentSharedWidgets {
           height: 45,
           child: CustomSearchBar(
             controller: controller,
-            hintText: "Search for customers, locations, bills",
+            hintText: "Search for cust-omers, locations, bills",
+            onFilterTap: () {
+              Get.to(
+                () => const DelayedPayFilterView(),
+                binding: const DelayedPayFilterBinding(),
+              );
+            },
           ),
         ));
   }

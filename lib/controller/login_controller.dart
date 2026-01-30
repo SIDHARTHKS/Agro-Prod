@@ -50,7 +50,7 @@ class LoginController extends AppBaseController {
   //
 
   RxBool rxRememberMe = true.obs;
-  RxBool rxhidePassword = true.obs;
+  RxBool rxhidePassword = false.obs;
 
   //response
   Rxn<LoginResponse> rxLoginData = Rxn<LoginResponse>();
@@ -67,23 +67,38 @@ class LoginController extends AppBaseController {
   final RxDouble bgOffset = 0.0.obs;
   final RxBool isRibbonDone = false.obs;
   final RxBool introAnimDone = false.obs;
+  final RxBool isAnyFieldFocused = false.obs;
+
+  final RxBool didAutoScroll = false.obs;
+  final RxBool moveLogo = false.obs;
+  final RxDouble ribbonProgress = 0.0.obs;
 
   @override
   Future<void> onInit() async {
     form = GlobalKey<FormState>();
 
-    userFocusNode.addListener(() {
+    void updateFocusState() {
       isUserFieldFocused.value =
           (userFocusNode.hasFocus || userController.text.isNotEmpty);
-    });
 
-    passwordFocusNode.addListener(() {
       isPasswordFieldFocused.value =
           (passwordFocusNode.hasFocus || passwordController.text.isNotEmpty);
-    });
+
+      // 🔑 Single source of truth for layout compression
+      isAnyFieldFocused.value =
+          userFocusNode.hasFocus || passwordFocusNode.hasFocus;
+    }
+
+    userFocusNode.addListener(updateFocusState);
+    passwordFocusNode.addListener(updateFocusState);
 
     scrollController.addListener(() {
       bgOffset.value = scrollController.offset;
+    });
+
+    // 🔑 start logo movement slightly AFTER splash shrink begins
+    Future.delayed(const Duration(milliseconds: 950), () {
+      moveLogo.value = true;
     });
 
     super.onInit();
