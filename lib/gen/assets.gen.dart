@@ -81,6 +81,10 @@ class $AssetsIconsGen {
   /// File path: assets/icons/delay0.png
   AssetGenImage get delay0 => const AssetGenImage('assets/icons/delay0.png');
 
+  /// File path: assets/icons/doubleEndArrow.png
+  AssetGenImage get doubleEndArrow =>
+      const AssetGenImage('assets/icons/doubleEndArrow.png');
+
   /// File path: assets/icons/filter.png
   AssetGenImage get filter => const AssetGenImage('assets/icons/filter.png');
 
@@ -130,6 +134,7 @@ class $AssetsIconsGen {
         cartonbox,
         completed,
         delay0,
+        doubleEndArrow,
         filter,
         home0,
         rupee,

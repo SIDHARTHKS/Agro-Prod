@@ -70,9 +70,12 @@ class DelayedPaymentSharedWidgets {
             controller: controller,
             hintText: "Search for cust-omers, locations, bills",
             onFilterTap: () {
-              Get.to(
-                () => const DelayedPayFilterView(),
-                binding: const DelayedPayFilterBinding(),
+              const DelayedPayFilterBinding().injectDependencies();
+
+              Get.bottomSheet(
+                const DelayedPayFilterView(),
+                isScrollControlled: true,
+                backgroundColor: Colors.transparent,
               );
             },
           ),

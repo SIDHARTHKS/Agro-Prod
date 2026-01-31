@@ -44,16 +44,10 @@ class LoginScreen extends AppBaseView<LoginController> {
         children: [
           // 1️⃣ Static splash background – never moves
           Positioned.fill(
-            child: Obx(() {
-              if (controller.introAnimDone.value) {
-                return const SizedBox.shrink(); // 💥 instant removal
-              }
-
-              return Image.asset(
-                Assets.images.splashBg1.path,
-                fit: BoxFit.cover,
-              );
-            }),
+            child: Image.asset(
+              Assets.images.splashBg1.path,
+              fit: BoxFit.cover,
+            ),
           ),
 
           // 2️⃣ Login background (behind everything)
@@ -79,7 +73,7 @@ class LoginScreen extends AppBaseView<LoginController> {
               });
             },
             delay: const Duration(milliseconds: 400),
-            duration: const Duration(milliseconds: 1400),
+            duration: const Duration(milliseconds: 1800),
             initialHeight: 0,
             finalHeight: 396,
             initialWidth: Get.width,
@@ -107,7 +101,7 @@ class LoginScreen extends AppBaseView<LoginController> {
                                 fontWeight: FontWeight.w600,
                                 color: AppColorHelper().primaryTextColor,
                               ),
-                              const SizedBox(height: 9),
+                              height(9),
                               appText(
                                 "Login to manage and track your business",
                                 textAlign: TextAlign.center,
@@ -134,15 +128,15 @@ class LoginScreen extends AppBaseView<LoginController> {
           Obx(() {
             return AnimatedOpacity(
                 duration: const Duration(
-                    milliseconds: 3500), // controls how slow it disappears
+                    milliseconds: 2200), // controls how slow it disappears
                 curve: Curves.easeOut,
                 opacity: controller.isRibbonDone.value ? 0.0 : 1.0,
                 child: IgnorePointer(
                     ignoring: controller.isRibbonDone.value,
                     child: AnimatedExpandContainer(
                       onComplete: () => controller.isRibbonDone.value = true,
-                      delay: const Duration(milliseconds: 500),
-                      duration: const Duration(milliseconds: 1400),
+                      delay: const Duration(milliseconds: 400),
+                      duration: const Duration(milliseconds: 2000),
                       initialHeight: Get.height,
                       finalHeight: 240,
                       initialWidth: Get.width,
@@ -162,17 +156,17 @@ class LoginScreen extends AppBaseView<LoginController> {
                             ),
                             Center(
                               child: AnimatedAlign(
-                                duration: const Duration(milliseconds: 2400),
+                                duration: const Duration(milliseconds: 2200),
                                 curve: Curves.easeOutCubic,
                                 alignment: controller.moveLogo.value
                                     ? const Alignment(
-                                        0, 0.56) // final header alignment
+                                        0, 0.50) // final header alignment
                                     : const Alignment(0, 0), // splash center
                                 child: AnimatedScale(
-                                  duration: const Duration(milliseconds: 2400),
+                                  duration: const Duration(milliseconds: 1600),
                                   curve: Curves.easeOutCubic,
                                   scale: controller.moveLogo.value
-                                      ? (0.60 / 0.41) // 🔑 exact scale needed
+                                      ? (0.62 / 0.41) // 🔑 exact scale needed
                                       : 1.0,
                                   child: FractionallySizedBox(
                                     widthFactor:
@@ -192,8 +186,8 @@ class LoginScreen extends AppBaseView<LoginController> {
           }),
           // 4️⃣ Login content – slides up in sync
           AnimatedExpandContainer(
-            delay: const Duration(milliseconds: 500),
-            duration: const Duration(milliseconds: 1400),
+            delay: const Duration(milliseconds: 400),
+            duration: const Duration(milliseconds: 1800),
             initialHeight: 0,
             finalHeight: Get.height,
             initialWidth: Get.width,
@@ -212,15 +206,29 @@ class LoginScreen extends AppBaseView<LoginController> {
 
                         final content = Column(
                           children: [
-                            Obx(() => AnimatedOpacity(
-                                  duration: const Duration(milliseconds: 500),
-                                  opacity:
-                                      controller.isRibbonDone.value ? 1 : 0,
-                                  child: SizedBox(
-                                    height: 240,
-                                    width: Get.width * 0.41,
-                                    child: LoginScreen.buildHeaderSurface(),
-                                  ),
+                            Obx(() => AnimatedSwitcher(
+                                  duration: const Duration(milliseconds: 800),
+                                  switchInCurve: Curves.easeOut,
+                                  switchOutCurve: Curves.easeIn,
+                                  transitionBuilder: (child, animation) {
+                                    return FadeTransition(
+                                      opacity: animation,
+                                      child: child,
+                                    );
+                                  },
+                                  child: controller.isRibbonDone.value
+                                      ? SizedBox(
+                                          key: const ValueKey('header'),
+                                          height: 240,
+                                          width: Get.width * 0.41,
+                                          child:
+                                              LoginScreen.buildHeaderSurface(),
+                                        )
+                                      : SizedBox(
+                                          key: const ValueKey('placeholder'),
+                                          height: 240, // 👈 HOLD SPACE
+                                          width: Get.width * 0.41,
+                                        ),
                                 )),
                             _mobileView(),
                           ],
@@ -298,7 +306,7 @@ class LoginScreen extends AppBaseView<LoginController> {
                 : MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              SizedBox(height: isKeyboardOpen ? 10 : 40),
+              height(isKeyboardOpen ? 10 : 40),
               Obx(() => AnimatedOpacity(
                     duration: const Duration(milliseconds: 300),
                     opacity: controller.introAnimDone.value ? 1.0 : 0.0,
@@ -310,7 +318,7 @@ class LoginScreen extends AppBaseView<LoginController> {
                           fontWeight: FontWeight.w600,
                           color: AppColorHelper().primaryTextColor,
                         ),
-                        SizedBox(height: isKeyboardOpen ? 6 : 9),
+                        height(isKeyboardOpen ? 6 : 9),
                         appText(
                           "Login to manage and track your business",
                           textAlign: TextAlign.center,
@@ -328,16 +336,16 @@ class LoginScreen extends AppBaseView<LoginController> {
                       ],
                     ),
                   )),
-              SizedBox(height: isKeyboardOpen ? 20 : 91),
+              height(isKeyboardOpen ? 20 : 91),
               Form(
                 key: controller.form,
                 child: Column(
                   children: [
                     _buildUsernameField(),
-                    SizedBox(height: isKeyboardOpen ? 12 : 22),
+                    height(isKeyboardOpen ? 12 : 22),
                     _buildPasswordField(),
-                    SizedBox(
-                      height: isKeyboardOpen ? 20 : (Platform.isIOS ? 50 : 45),
+                    height(
+                      isKeyboardOpen ? 20 : (Platform.isIOS ? 50 : 45),
                     ),
                     buttonContainer(
                       radius: 10,
@@ -369,7 +377,7 @@ class LoginScreen extends AppBaseView<LoginController> {
                         });
                       },
                     ),
-                    SizedBox(height: isKeyboardOpen ? 8 : 18),
+                    height(isKeyboardOpen ? 8 : 18),
                     GestureDetector(
                       onTap: () async {},
                       child: Text(
