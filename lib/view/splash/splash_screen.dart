@@ -10,7 +10,6 @@ import '../../helper/color_helper.dart';
 import '../../helper/core/base/app_base_view.dart';
 import '../../helper/core/environment/env.dart';
 import '../../helper/navigation.dart';
-import '../../helper/sizer.dart';
 import '../../helper/route.dart';
 import '../widget/common_widget.dart';
 
@@ -81,9 +80,9 @@ class SplashScreen extends AppBaseView<SplashController> {
               child: SlideTransition(
                 position: controller.logoSlide,
                 child: FadeTransition(
-                  opacity: controller.logoFade, // 👈 add this
+                  opacity: controller.logoFade,
                   child: FractionallySizedBox(
-                    widthFactor: 0.41,
+                    widthFactor: 0.40,
                     child: Image.asset(
                       Assets.images.agromisLogo.path,
                       fit: BoxFit.contain,

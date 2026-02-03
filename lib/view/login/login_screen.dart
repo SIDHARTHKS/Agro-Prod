@@ -75,7 +75,7 @@ class LoginScreen extends AppBaseView<LoginController> {
             delay: const Duration(milliseconds: 400),
             duration: const Duration(milliseconds: 1800),
             initialHeight: 0,
-            finalHeight: 396,
+            finalHeight: 400,
             initialWidth: Get.width,
             finalWidth: Get.width,
             alignment: Alignment.topCenter,
@@ -88,10 +88,10 @@ class LoginScreen extends AppBaseView<LoginController> {
                   maxHeight: double.infinity,
                   alignment: Alignment.bottomCenter,
                   child: Obx(() => AnimatedOpacity(
-                        duration: const Duration(milliseconds: 300),
+                        duration: const Duration(milliseconds: 1300),
                         opacity: controller.introAnimDone.value ? 0.0 : 1.0,
                         child: SizedBox(
-                          height: 96, // real height of your text block
+                          height: 100, // real height of your text block
                           child: Column(
                             mainAxisSize: MainAxisSize.min,
                             children: [
@@ -128,7 +128,7 @@ class LoginScreen extends AppBaseView<LoginController> {
           Obx(() {
             return AnimatedOpacity(
                 duration: const Duration(
-                    milliseconds: 2200), // controls how slow it disappears
+                    milliseconds: 2000), // controls how slow it disappears
                 curve: Curves.easeOut,
                 opacity: controller.isRibbonDone.value ? 0.0 : 1.0,
                 child: IgnorePointer(
@@ -140,7 +140,7 @@ class LoginScreen extends AppBaseView<LoginController> {
                       initialHeight: Get.height,
                       finalHeight: 240,
                       initialWidth: Get.width,
-                      finalWidth: Get.width * 0.41,
+                      finalWidth: Get.width * 0.40,
                       alignment: Alignment.topCenter,
                       child: ClipRRect(
                         borderRadius: const BorderRadius.only(
@@ -151,7 +151,7 @@ class LoginScreen extends AppBaseView<LoginController> {
                           fit: StackFit.expand,
                           children: [
                             Image.asset(
-                              Assets.images.splashBg4.path,
+                              Assets.images.splashBg1.path,
                               fit: BoxFit.cover,
                             ),
                             Center(
@@ -160,17 +160,15 @@ class LoginScreen extends AppBaseView<LoginController> {
                                 curve: Curves.easeOutCubic,
                                 alignment: controller.moveLogo.value
                                     ? const Alignment(
-                                        0, 0.50) // final header alignment
+                                        0, 0.535) // final header alignment
                                     : const Alignment(0, 0), // splash center
                                 child: AnimatedScale(
-                                  duration: const Duration(milliseconds: 1900),
-                                  curve: Curves.easeOutCubic,
-                                  scale: controller.moveLogo.value
-                                      ? (0.62 / 0.41) // 🔑 exact scale needed
-                                      : 1.0,
+                                  duration: const Duration(milliseconds: 1000),
+                                  curve: Curves.easeInOut,
+                                  scale: controller.moveLogo.value ? 1.5 : 1.0,
                                   child: FractionallySizedBox(
                                     widthFactor:
-                                        0.41, // ✅ splash logo size (LOCKED)
+                                        0.40, // ✅ splash logo size (LOCKED)
                                     child: Image.asset(
                                       Assets.images.agromisLogo.path,
                                       fit: BoxFit.contain,
@@ -220,14 +218,14 @@ class LoginScreen extends AppBaseView<LoginController> {
                                       ? SizedBox(
                                           key: const ValueKey('header'),
                                           height: 240,
-                                          width: Get.width * 0.41,
+                                          width: Get.width * 0.40,
                                           child:
                                               LoginScreen.buildHeaderSurface(),
                                         )
                                       : SizedBox(
                                           key: const ValueKey('placeholder'),
                                           height: 240, // 👈 HOLD SPACE
-                                          width: Get.width * 0.41,
+                                          width: Get.width * 0.40,
                                         ),
                                 )),
                             _mobileView(),
@@ -484,7 +482,7 @@ class LoginScreen extends AppBaseView<LoginController> {
         children: [
           // Background exactly like the ribbon’s final frame
           Image.asset(
-            Assets.images.headerBg.path,
+            Assets.images.splashBg1.path,
             fit: BoxFit.cover,
           ),
 

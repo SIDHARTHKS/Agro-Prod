@@ -64,13 +64,13 @@ class SplashController extends AppBaseController
 
     logoSlide = TweenSequence<Offset>([
       TweenSequenceItem(
-        tween: Tween(begin: const Offset(0, 1.6), end: const Offset(0, 0))
+        tween: Tween(begin: const Offset(0, 1.0), end: const Offset(0, 0))
             .chain(CurveTween(curve: Curves.easeOutCubic)),
         weight: 70,
       ),
       TweenSequenceItem(
         tween: ConstantTween(const Offset(0, 0)),
-        weight: 30,
+        weight: 10,
       ),
     ]).animate(_textController);
 
@@ -84,7 +84,7 @@ class SplashController extends AppBaseController
       // smooth fade-in
       TweenSequenceItem(
         tween: Tween(begin: 0.0, end: 1.0)
-            .chain(CurveTween(curve: Curves.easeInOutCubic)),
+            .chain(CurveTween(curve: Curves.easeInOut)),
         weight: 80,
       ),
     ]).animate(_textController);

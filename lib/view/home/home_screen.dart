@@ -1,8 +1,5 @@
 import 'package:agro/gen/assets.gen.dart';
 import 'package:agro/helper/app_string.dart';
-import 'package:agro/helper/navigation.dart';
-import 'package:agro/helper/route.dart';
-import '../../helper/core/base/app_base_controller.dart';
 import 'package:agro/helper/sizer.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -42,7 +39,7 @@ class HomeScreen extends AppBaseView<HomeController> {
         color: AppColorHelper().cardColor,
         child: SafeArea(
           child: Container(
-              height: 50,
+              height: 52,
               color: AppColorHelper().cardColor,
               child: Row(
                 children:
@@ -73,13 +70,13 @@ class HomeScreen extends AppBaseView<HomeController> {
         controller.rxCurrentNavBarIndex(index);
       },
       child: Container(
-        margin: const EdgeInsets.only(top: 10),
-        height: 40,
-        width: 40,
+        margin: const EdgeInsets.only(top: 5),
+        height: 65,
+        width: 65,
         color: AppColorHelper().cardColor,
         child: Image.asset(
           item,
-          scale: 1,
+          scale: 3,
           color: selected ? AppColorHelper().iconColor : null,
         ),
       ),
