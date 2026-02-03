@@ -23,22 +23,12 @@ class DelayedPaymentController extends AppBaseController
   final DelayedPaymentService delayedPaymentService =
       Get.find<DelayedPaymentService>();
 
-  final RxList<DelayedPayListDtl> pendingList = <DelayedPayListDtl>[].obs;
-
-  final RxList<DelayedPayListDtl> settledList = <DelayedPayListDtl>[].obs;
-
   final RxList<LocationDetailsListDtl> locationList =
       <LocationDetailsListDtl>[].obs;
 
-  /// L1 – Static (API result, never touched by search/filter)
   final RxList<DelayedPayListDtl> pendingStaticList = <DelayedPayListDtl>[].obs;
   final RxList<DelayedPayListDtl> settledStaticList = <DelayedPayListDtl>[].obs;
 
-  /// L2 – After search
-  final RxList<DelayedPayListDtl> pendingSearchList = <DelayedPayListDtl>[].obs;
-  final RxList<DelayedPayListDtl> settledSearchList = <DelayedPayListDtl>[].obs;
-
-  /// L3 – Final display (after filters)
   final RxList<DelayedPayListDtl> pendingDisplayList =
       <DelayedPayListDtl>[].obs;
   final RxList<DelayedPayListDtl> settledDisplayList =
@@ -47,9 +37,7 @@ class DelayedPaymentController extends AppBaseController
   @override
   Future<void> onInit() async {
     // 🔑 This is what drives search
-    searchController.addListener(() {
-      applySearch(searchController.text);
-    });
+    searchController.addListener(rebuildDisplayLists);
 
     // 1. Try load cached data first
     final cachedJson =
@@ -64,14 +52,12 @@ class DelayedPaymentController extends AppBaseController
         pendingStaticList.assignAll(cachedData.delayedPayPendingListDtls ?? []);
         settledStaticList.assignAll(cachedData.delayedPaySettledListDtls ?? []);
 
-        locationList.assignAll(cachedData.locationDetailsListDtls ?? []);
-
-        // Pending behaves normally
         pendingDisplayList.assignAll(pendingStaticList);
-
         // Settled: only first 10 enter the pipeline
         final baseSettledWindow = settledStaticList.take(10).toList();
         settledDisplayList.assignAll(baseSettledWindow);
+
+        locationList.assignAll(cachedData.locationDetailsListDtls ?? []);
 
         pendingVisibleCount.value = pendingPageSize;
         settledVisibleCount.value = 10;
@@ -116,14 +102,7 @@ class DelayedPaymentController extends AppBaseController
         pendingStaticList.assignAll(data.delayedPayPendingListDtls ?? []);
         settledStaticList.assignAll(data.delayedPaySettledListDtls ?? []);
 
-        // L2
-        pendingSearchList.assignAll(pendingStaticList);
-        settledSearchList.assignAll(settledStaticList);
-
-        // L3
-        pendingDisplayList.assignAll(pendingSearchList);
-
-        // Settled shows only 10 initially
+        pendingDisplayList.assignAll(pendingStaticList);
         settledDisplayList.assignAll(settledStaticList.take(10));
 
         pendingVisibleCount.value = pendingPageSize;
@@ -150,55 +129,48 @@ class DelayedPaymentController extends AppBaseController
     }
   }
 
-  void applyFilters() {
-    final hasSearch = searchController.text.trim().isNotEmpty;
-
-    pendingDisplayList.assignAll(pendingSearchList);
-
-    if (hasSearch) {
-      // After search → allow full filtered data
-      settledDisplayList.assignAll(settledSearchList);
-      settledVisibleCount.value = settledPageSize;
-    } else {
-      // No search → show only 10
-      settledDisplayList.assignAll(settledSearchList.take(10));
-      settledVisibleCount.value = 10;
-    }
-
-    pendingVisibleCount.value = pendingPageSize;
+  double _toDouble(Object? value) {
+    if (value == null) return 0;
+    if (value is num) return value.toDouble();
+    if (value is String) return double.tryParse(value) ?? 0;
+    return 0;
   }
 
-  void applySearch(String query) {
-    final key = query.trim().toLowerCase();
+  void applyFilters({
+    List<String>? locations,
+    RangeValues? amountRange,
+    RangeValues? lateDaysRange,
+    DateTime? billedFrom,
+    DateTime? billedTo,
+    DateTime? committedFrom,
+    DateTime? committedTo,
+  }) {
+    selectedLocations.assignAll(locations ?? []);
+    this.amountRange.value = amountRange;
+    this.lateDaysRange.value = lateDaysRange;
 
-    // Pending – normal full search
-    if (key.isEmpty) {
-      pendingDisplayList.assignAll(pendingStaticList);
-    } else {
-      pendingDisplayList.assignAll(
-        pendingStaticList.where((e) =>
-            (e.custName ?? '').toLowerCase().contains(key) ||
-            (e.location ?? '').toLowerCase().contains(key) ||
-            (e.billNo ?? '').toLowerCase().contains(key)),
-      );
-    }
+    this.billedFrom.value = billedFrom;
+    this.billedTo.value = billedTo;
+    this.committedFrom.value = committedFrom;
+    this.committedTo.value = committedTo;
 
-    // Settled – search ONLY inside first 10
-    final baseSettledWindow = settledStaticList.take(10);
+    rebuildDisplayLists();
+  }
 
-    if (key.isEmpty) {
-      settledDisplayList.assignAll(baseSettledWindow);
-    } else {
-      settledDisplayList.assignAll(
-        baseSettledWindow.where((e) =>
-            (e.custName ?? '').toLowerCase().contains(key) ||
-            (e.location ?? '').toLowerCase().contains(key) ||
-            (e.billNo ?? '').toLowerCase().contains(key)),
-      );
-    }
+  void applySearch(String _) {
+    rebuildDisplayLists();
+  }
 
-    pendingVisibleCount.value = pendingPageSize;
-    settledVisibleCount.value = settledDisplayList.length;
+  void clearFilters() {
+    selectedLocations.clear();
+    amountRange.value = null;
+    lateDaysRange.value = null;
+    billedFrom.value = null;
+    billedTo.value = null;
+    committedFrom.value = null;
+    committedTo.value = null;
+
+    rebuildDisplayLists();
   }
 
   final RxInt settledVisibleCount = 10.obs;
@@ -267,5 +239,93 @@ class DelayedPaymentController extends AppBaseController
     } catch (e) {
       showErrorSnackbar(message: "Could not open dialer");
     }
+  }
+
+// FILTER STATE (persisted)
+  final Rx<RangeValues?> amountRange = Rx<RangeValues?>(null);
+  final Rx<RangeValues?> lateDaysRange = Rx<RangeValues?>(null);
+
+  final Rx<DateTime?> billedFrom = Rx<DateTime?>(null);
+  final Rx<DateTime?> billedTo = Rx<DateTime?>(null);
+
+  final Rx<DateTime?> committedFrom = Rx<DateTime?>(null);
+  final Rx<DateTime?> committedTo = Rx<DateTime?>(null);
+
+  final RxList<String> selectedLocations = <String>[].obs;
+
+  bool _matches(DelayedPayListDtl e) {
+    final key = searchController.text.trim().toLowerCase();
+
+    // 🔍 SEARCH
+    if (key.isNotEmpty &&
+        !(e.custName ?? '').toLowerCase().contains(key) &&
+        !(e.location ?? '').toLowerCase().contains(key) &&
+        !(e.billNo ?? '').toLowerCase().contains(key)) {
+      return false;
+    }
+
+    // 📍 LOCATION
+    if (selectedLocations.isNotEmpty &&
+        !selectedLocations.contains(e.location)) {
+      return false;
+    }
+
+    // 💰 AMOUNT
+    final range = amountRange.value;
+    if (range != null) {
+      final amount = _toDouble(e.billAmt);
+      if (amount < range.start || amount > range.end) {
+        return false;
+      }
+    }
+
+    // ⏱️ LATE DAYS
+    final lateRange = lateDaysRange.value;
+    if (lateRange != null) {
+      final days = _toDouble(e.lateDays);
+      if (days < lateRange.start || days > lateRange.end) {
+        return false;
+      }
+    }
+
+    final df = DateFormat('dd/MM/yyyy');
+
+    // 📅 BILLED DATE
+    if (billedFrom.value != null && billedTo.value != null) {
+      if (e.billedOn == null) return false;
+      final d = df.tryParse(e.billedOn!);
+      if (d == null ||
+          d.isBefore(billedFrom.value!) ||
+          d.isAfter(billedTo.value!)) {
+        return false;
+      }
+    }
+
+    // 📅 COMMITTED DATE
+    if (committedFrom.value != null && committedTo.value != null) {
+      if (e.committedOn == null) return false;
+      final d = df.tryParse(e.committedOn!);
+      if (d == null ||
+          d.isBefore(committedFrom.value!) ||
+          d.isAfter(committedTo.value!)) {
+        return false;
+      }
+    }
+
+    return true;
+  }
+
+  void rebuildDisplayLists() {
+    pendingDisplayList.assignAll(
+      pendingStaticList.where(_matches),
+    );
+
+    settledDisplayList.assignAll(
+      settledStaticList.where(_matches),
+    );
+
+    pendingVisibleCount.value = pendingPageSize;
+    settledVisibleCount.value =
+        searchController.text.isEmpty ? 10 : settledDisplayList.length;
   }
 }

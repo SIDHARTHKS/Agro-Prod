@@ -156,14 +156,14 @@ class LoginScreen extends AppBaseView<LoginController> {
                             ),
                             Center(
                               child: AnimatedAlign(
-                                duration: const Duration(milliseconds: 2200),
+                                duration: const Duration(milliseconds: 2700),
                                 curve: Curves.easeOutCubic,
                                 alignment: controller.moveLogo.value
                                     ? const Alignment(
                                         0, 0.50) // final header alignment
                                     : const Alignment(0, 0), // splash center
                                 child: AnimatedScale(
-                                  duration: const Duration(milliseconds: 1600),
+                                  duration: const Duration(milliseconds: 1900),
                                   curve: Curves.easeOutCubic,
                                   scale: controller.moveLogo.value
                                       ? (0.62 / 0.41) // 🔑 exact scale needed

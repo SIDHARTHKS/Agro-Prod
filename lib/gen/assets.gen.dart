@@ -70,9 +70,16 @@ class $AssetsIconsGen {
   /// File path: assets/icons/back.png
   AssetGenImage get back => const AssetGenImage('assets/icons/back.png');
 
+  /// File path: assets/icons/calender.png
+  AssetGenImage get calender =>
+      const AssetGenImage('assets/icons/calender.png');
+
   /// File path: assets/icons/cartonbox.png
   AssetGenImage get cartonbox =>
       const AssetGenImage('assets/icons/cartonbox.png');
+
+  /// File path: assets/icons/check.png
+  AssetGenImage get check => const AssetGenImage('assets/icons/check.png');
 
   /// File path: assets/icons/completed.png
   AssetGenImage get completed =>
@@ -131,7 +138,9 @@ class $AssetsIconsGen {
         arrowup,
         arrowupgreen,
         back,
+        calender,
         cartonbox,
+        check,
         completed,
         delay0,
         doubleEndArrow,

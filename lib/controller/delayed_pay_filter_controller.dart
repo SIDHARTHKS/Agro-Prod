@@ -1,17 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../helper/core/base/app_base_controller.dart';
+import '../controller/delayed_payment_controller.dart';
 import 'dart:async';
 
 class DelayedPayFilterController extends AppBaseController
     with GetSingleTickerProviderStateMixin {
   final TextEditingController searchController = TextEditingController();
 
-  /// AMOUNT RANGE
-  final Rx<RangeValues> amountRange = const RangeValues(50000, 200000).obs;
-
-  /// LATE DAYS RANGE
-  final Rx<RangeValues> lateDaysRange = const RangeValues(20, 80).obs;
+  final Rx<RangeValues?> amountRange = Rx<RangeValues?>(null);
+  final Rx<RangeValues?> lateDaysRange = Rx<RangeValues?>(null);
 
   /// DATES
   final Rx<DateTime?> billedFrom = Rx<DateTime?>(null);
@@ -20,11 +18,23 @@ class DelayedPayFilterController extends AppBaseController
   final Rx<DateTime?> committedFrom = Rx<DateTime?>(null);
   final Rx<DateTime?> committedTo = Rx<DateTime?>(null);
 
-  @override
-  Future<void> onInit() async {
-    // 🔑 This is what drives search
+  final RxBool amountTouched = false.obs;
+  final RxBool lateDaysTouched = false.obs;
 
-    await _setArguments();
+  @override
+  void onInit() {
+    final main = Get.find<DelayedPaymentController>();
+
+    amountRange.value = main.amountRange.value;
+    lateDaysRange.value = main.lateDaysRange.value;
+
+    billedFrom.value = main.billedFrom.value;
+    billedTo.value = main.billedTo.value;
+
+    committedFrom.value = main.committedFrom.value;
+    committedTo.value = main.committedTo.value;
+
+    selectedLocations.assignAll(main.selectedLocations);
 
     super.onInit();
   }
@@ -37,7 +47,7 @@ class DelayedPayFilterController extends AppBaseController
   final List<String> allLocations = [
     'Kochi',
     'Kottayam',
-    'Vanddiperiyar',
+    'Vandiperiyar',
   ];
 
   final RxList<String> selectedLocations = <String>[].obs;
