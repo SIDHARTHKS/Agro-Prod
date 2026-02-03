@@ -53,6 +53,7 @@ dependencies:
   pull_to_refresh: ^2.0.0
   flutter_dash: ^1.0.0
   dotted_border: ^2.1.0
+  stacked_animated_list: ^1.0.2
   
 dev_dependencies:
   flutter_test:

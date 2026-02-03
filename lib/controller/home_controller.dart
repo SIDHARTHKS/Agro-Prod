@@ -20,6 +20,8 @@ class HomeController extends AppBaseController
   RxString rxUserImg = ''.obs;
   RxString rxUserId = "".obs;
 
+  RxInt currentIndex = 0.obs;
+
   final DelayedPaymentService delayedPaymentService =
       Get.find<DelayedPaymentService>();
 
@@ -112,5 +114,13 @@ class HomeController extends AppBaseController
     }
 
     Get.offAllNamed(loginPageRoute);
+  }
+
+  void nextCard(int totalCards) {
+    if (currentIndex.value < totalCards - 1) {
+      currentIndex.value++;
+    } else {
+      currentIndex.value = 0; // loop back
+    }
   }
 }

@@ -165,7 +165,7 @@ AppTheme _demoDarkTheme() => AppTheme(
       disabledBorderColor: Colors.grey[800]!,
       errorBorderColor: Colors.redAccent,
       dividerColor: Colors.white,
-      iconColor: const Color.fromRGBO(0, 182, 86, 1),
+      iconColor: const Color.fromARGB(255, 223, 223, 223),
       selectedIconColor: Colors.lightBlue,
       unselectedIconColor: Colors.grey[600]!,
 
@@ -211,7 +211,7 @@ AppTheme _demoLightTheme() => AppTheme(
       primaryColor: const Color.fromRGBO(0, 182, 86, 1),
       primaryColorLight: const Color.fromARGB(255, 173, 255, 211),
       primaryColorDark: const Color.fromARGB(255, 2, 95, 45),
-      backgroundColor: const Color.fromARGB(255, 250, 248, 254),
+      backgroundColor: const Color.fromARGB(255, 240, 247, 243),
       cardColor: Colors.white,
       dialogBackgroundColor: Colors.white,
       canvasColor: const Color.fromARGB(255, 245, 243, 248),
@@ -230,7 +230,7 @@ AppTheme _demoLightTheme() => AppTheme(
       disabledBorderColor: const Color.fromARGB(255, 237, 237, 237)!,
       errorBorderColor: const Color.fromRGBO(217, 75, 77, 1),
       dividerColor: Colors.white,
-      iconColor: const Color.fromRGBO(0, 182, 86, 1),
+      iconColor: const Color.fromARGB(255, 223, 223, 223),
       selectedIconColor: const Color.fromRGBO(180, 29, 141, 1)!,
       unselectedIconColor: Colors.grey,
 

@@ -56,6 +56,10 @@ class $AssetsIconsGen {
   AssetGenImage get agromisLogo =>
       const AssetGenImage('assets/icons/agromisLogo.png');
 
+  /// File path: assets/icons/appbarIcon.png
+  AssetGenImage get appbarIcon =>
+      const AssetGenImage('assets/icons/appbarIcon.png');
+
   /// File path: assets/icons/arrowright.png
   AssetGenImage get arrowright =>
       const AssetGenImage('assets/icons/arrowright.png');
@@ -98,6 +102,10 @@ class $AssetsIconsGen {
   /// File path: assets/icons/home0.png
   AssetGenImage get home0 => const AssetGenImage('assets/icons/home0.png');
 
+  /// File path: assets/icons/notitficationIcon.png
+  AssetGenImage get notitficationIcon =>
+      const AssetGenImage('assets/icons/notitficationIcon.png');
+
   /// File path: assets/icons/rupee.png
   AssetGenImage get rupee => const AssetGenImage('assets/icons/rupee.png');
 
@@ -134,6 +142,7 @@ class $AssetsIconsGen {
         filterBtn,
         searchIcon,
         agromisLogo,
+        appbarIcon,
         arrowright,
         arrowup,
         arrowupgreen,
@@ -146,6 +155,7 @@ class $AssetsIconsGen {
         doubleEndArrow,
         filter,
         home0,
+        notitficationIcon,
         rupee,
         search,
         settings0,

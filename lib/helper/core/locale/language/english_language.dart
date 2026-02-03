@@ -93,5 +93,5 @@ Map<String, String> enUS = {
 
   //custom
 
-  welcomDialogue: 'Welcome to MuzAgro App',
+  salesDepotOverview: 'Sales Depot Overview',
 };

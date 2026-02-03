@@ -278,47 +278,60 @@ AppBar customAppBar(
   );
 }
 
-AppBar customStatusAppBar(
+AppBar customHomeAppBar(
   String title, {
   VoidCallback? onTap,
-  List<Widget>? actions,
-  Widget? statusWidget,
 }) {
   return AppBar(
-    backgroundColor: AppColorHelper().backgroundColor,
-    automaticallyImplyLeading: false,
-    surfaceTintColor: Colors.transparent,
-    centerTitle: false,
-    leadingWidth: 45,
-    toolbarHeight: 45,
-    leading: GestureDetector(
-      onTap: onTap ?? goBack,
-      child: Padding(
-        padding: const EdgeInsets.only(left: 12, top: 15),
-        child: Icon(
-          Icons.arrow_back_ios_new,
-          size: 20,
-          color: AppColorHelper().primaryTextColor,
+      backgroundColor: AppColorHelper().backgroundColor,
+      automaticallyImplyLeading: false,
+      surfaceTintColor: Colors.transparent,
+      centerTitle: false,
+      leadingWidth: 55,
+      // toolbarHeight: 50,
+      leading: GestureDetector(
+        onTap: onTap ?? goBack,
+        child: Padding(
+            padding: const EdgeInsets.only(left: 18, top: 15),
+            child: SizedBox(
+              height: 45,
+              width: 45,
+              child: Image.asset(
+                Assets.icons.appbarIcon.path,
+                scale: 3,
+              ),
+            )),
+      ),
+      title: Padding(
+        padding: const EdgeInsets.only(top: 15.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            appText(
+              "Good Morning",
+              fontSize: 12,
+              color: AppColorHelper().primaryTextColor.withValues(alpha: 0.7),
+              fontWeight: FontWeight.w400,
+            ),
+            height(2),
+            appText(
+              "Hi, $title",
+              fontSize: 14,
+              color: AppColorHelper().primaryTextColor,
+              fontWeight: FontWeight.w500,
+            ),
+          ],
         ),
       ),
-    ),
-    title: Padding(
-      padding: const EdgeInsets.only(top: 15.0),
-      child: Row(
-        children: [
-          appText(
-            title,
-            fontSize: 19,
-            color: AppColorHelper().primaryTextColor,
-            fontWeight: FontWeight.w600,
+      actions: [
+        Padding(
+          padding: const EdgeInsets.only(right: 18.0, top: 10.0),
+          child: Image.asset(
+            Assets.icons.notitficationIcon.path,
+            scale: 4,
           ),
-          width(10),
-          statusWidget ?? const SizedBox.shrink(),
-        ],
-      ),
-    ),
-    actions: actions, // 👈 optional, can be null
-  );
+        ),
+      ]);
 }
 
 SizedBox appContainer({

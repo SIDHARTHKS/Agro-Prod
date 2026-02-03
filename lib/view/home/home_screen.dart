@@ -1,6 +1,6 @@
-import 'package:agro/gen/assets.gen.dart';
 import 'package:agro/helper/app_string.dart';
 import 'package:agro/helper/sizer.dart';
+import 'package:agro/view/home/homeView/home_view.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../controller/home_controller.dart';
@@ -15,13 +15,12 @@ class HomeScreen extends AppBaseView<HomeController> {
   @override
   Widget buildView() {
     return Obx(() {
-      return appScaffoldImg(
-          backgroundImage: AssetImage(Assets.images.loginBg.path),
+      return appScaffold(
           canpop: true,
           extendBodyBehindAppBar: true,
           topSafe: false,
-          appBar: customAppBar(
-            controller.appBarTitles[controller.rxCurrentNavBarIndex.value],
+          appBar: customHomeAppBar(
+            "User",
             onTap: () {
               if (controller.rxCurrentNavBarIndex.value > 0) {
                 controller.rxCurrentNavBarIndex.value--;
@@ -113,29 +112,11 @@ class HomeScreen extends AppBaseView<HomeController> {
     );
   }
 
-  Widget _homeBody() {
-    return appContainer(
-      child: SingleChildScrollView(
-        child: Column(
-          children: [
-            Center(
-              child: appText(
-                welcomDialogue.tr,
-                fontSize: 17,
-                color: AppColorHelper().primaryTextColor,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
   Widget _buildBody() {
     return Obx(() {
       switch (controller.rxCurrentNavBarIndex.value) {
         case 0:
-          return _homeBody();
+          return HomeView();
         case 1:
           return const DelayedPaymentsView();
 
@@ -144,7 +125,7 @@ class HomeScreen extends AppBaseView<HomeController> {
         case 3:
           return _settingsBody();
         default:
-          return _homeBody();
+          return HomeView();
       }
     });
   }
