@@ -105,8 +105,7 @@ class DelayedPaymentsSettledView extends GetView<DelayedPaymentController> {
                   height(10),
                   Flexible(
                       child: LayoutBuilder(builder: (context, constraints) {
-                    return DelayedPaymentSharedWidgets()
-                        .dashedLine(constraints.biggest.width);
+                    return dashedLine(constraints.biggest.width);
                   })),
                   height(13),
                   _settledBillInfoRow(data),

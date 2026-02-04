@@ -8,7 +8,6 @@ import '../../../../view/widget/datepicker/custom_daterangepicker.dart';
 import 'package:get/get.dart';
 import 'package:agro/helper/sizer.dart';
 import 'package:agro/view/widget/slider/custom_range_slider.dart';
-import '../widgets/delayed_payments_shared_widgets.dart';
 import 'package:agro/gen/assets.gen.dart';
 import 'package:intl/intl.dart';
 
@@ -75,8 +74,7 @@ class DelayedPayFilterView extends AppBaseView<DelayedPayFilterController> {
   }
 
   Widget _divider() => LayoutBuilder(
-        builder: (context, c) =>
-            DelayedPaymentSharedWidgets().dashedLine(c.maxWidth),
+        builder: (context, c) => dashedLine(c.maxWidth),
       );
 
   Widget _header() {

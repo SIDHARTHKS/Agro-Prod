@@ -1,6 +1,5 @@
 import 'package:agro/gen/assets.gen.dart';
 import 'package:agro/view/widget/searchbar/custom_searchbar.dart';
-import 'package:flutter_dash/flutter_dash.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../../../helper/color_helper.dart';
@@ -10,7 +9,6 @@ import '../../../../helper/sizer.dart';
 import '../../../widget/common_widget.dart';
 import '../widgets/delayed_pay_filter_view.dart';
 import '../../../../controller/delayed_payment_controller.dart';
-// import '../../../../controller/delayed_pay_filter_controller.dart';
 import '../../../../binding/delayed_pay_filter_binding.dart';
 
 class DelayedPaymentSharedWidgets {
@@ -43,22 +41,6 @@ class DelayedPaymentSharedWidgets {
             ),
           ),
         ],
-      ),
-    );
-  }
-
-  Widget dashedLine(double maxWidth) {
-    const horizontalPadding = 20.0;
-
-    final usableWidth = maxWidth - (horizontalPadding * 2);
-
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: horizontalPadding),
-      child: Dash(
-        direction: Axis.horizontal,
-        length: usableWidth > 0 ? usableWidth : 0,
-        dashLength: 3,
-        dashColor: AppColorHelper().primaryTextColor.withAlpha(30),
       ),
     );
   }

@@ -112,6 +112,10 @@ class $AssetsIconsGen {
   /// File path: assets/icons/rupee.png
   AssetGenImage get rupee => const AssetGenImage('assets/icons/rupee.png');
 
+  /// File path: assets/icons/salesSumIcon.png
+  AssetGenImage get salesSumIcon =>
+      const AssetGenImage('assets/icons/salesSumIcon.png');
+
   /// File path: assets/icons/search.png
   AssetGenImage get search => const AssetGenImage('assets/icons/search.png');
 
@@ -161,6 +165,7 @@ class $AssetsIconsGen {
         home0,
         notitficationIcon,
         rupee,
+        salesSumIcon,
         search,
         settings0,
         shoppingcart,

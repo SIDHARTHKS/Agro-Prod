@@ -13,6 +13,7 @@ import '../../helper/navigation.dart';
 import '../../helper/sizer.dart';
 import 'text/app_text.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:flutter_dash/flutter_dash.dart';
 
 Scaffold appScaffold(
         {required Widget body,
@@ -1081,4 +1082,20 @@ class _LoopingProgressBarState extends State<LoopingProgressBar>
       ),
     );
   }
+}
+
+Widget dashedLine(double maxWidth) {
+  const horizontalPadding = 20.0;
+
+  final usableWidth = maxWidth - (horizontalPadding * 2);
+
+  return Padding(
+    padding: const EdgeInsets.symmetric(horizontal: horizontalPadding),
+    child: Dash(
+      direction: Axis.horizontal,
+      length: usableWidth > 0 ? usableWidth : 0,
+      dashLength: 3,
+      dashColor: AppColorHelper().primaryTextColor.withAlpha(30),
+    ),
+  );
 }

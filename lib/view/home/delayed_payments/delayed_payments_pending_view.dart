@@ -43,7 +43,7 @@ class DelayedPaymentsPendingView extends GetView<DelayedPaymentController> {
               Column(
                 children: [
                   height(20),
-                  DelayedPaymentSharedWidgets().dashedLine(Get.width),
+                  dashedLine(Get.width),
                   height(25),
                 ],
               ),
