@@ -78,7 +78,13 @@ class _CustomDateRangePickerState extends State<CustomDaterangepicker> {
       _startDate = widget.initialRange!.start;
       _endDate = widget.initialRange!.end;
     }
-    _currentMonth = DateTime(DateTime.now().year, DateTime.now().month);
+    final now = DateTime.now();
+
+    // Financial year starts in April
+    final fyStartYear = now.month >= 4 ? now.year : now.year - 1;
+
+    // Start calendar from April of FY
+    _currentMonth = DateTime(fyStartYear, 4);
   }
 
   List<DateTime> _getDaysInMonth(DateTime month) {
@@ -119,8 +125,18 @@ class _CustomDateRangePickerState extends State<CustomDaterangepicker> {
 
   @override
   Widget build(BuildContext context) {
+    final now = DateTime.now();
+
+    // Number of months from FY April till current month
+    final totalMonths = (now.year - _currentMonth.year) * 12 +
+        (now.month - _currentMonth.month) +
+        1;
+
+    // If you want future months also (say +3 months)
+    const futureMonths = 3;
+
     final months = List.generate(
-      12,
+      totalMonths + futureMonths,
       (i) => DateTime(_currentMonth.year, _currentMonth.month + i),
     );
 

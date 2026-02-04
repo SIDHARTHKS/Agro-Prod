@@ -85,6 +85,9 @@ class $AssetsIconsGen {
   /// File path: assets/icons/check.png
   AssetGenImage get check => const AssetGenImage('assets/icons/check.png');
 
+  /// File path: assets/icons/close.png
+  AssetGenImage get close => const AssetGenImage('assets/icons/close.png');
+
   /// File path: assets/icons/completed.png
   AssetGenImage get completed =>
       const AssetGenImage('assets/icons/completed.png');
@@ -150,6 +153,7 @@ class $AssetsIconsGen {
         calender,
         cartonbox,
         check,
+        close,
         completed,
         delay0,
         doubleEndArrow,

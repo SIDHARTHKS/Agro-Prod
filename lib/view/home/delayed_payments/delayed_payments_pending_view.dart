@@ -35,9 +35,6 @@ class DelayedPaymentsPendingView extends GetView<DelayedPaymentController> {
           },
           child: ListView(
             physics: const AlwaysScrollableScrollPhysics(),
-            padding: const EdgeInsets.only(
-              bottom: 40 + kBottomNavigationBarHeight,
-            ),
             children: [
               /// SUMMARY
               Center(child: _summarySection()),
@@ -69,9 +66,10 @@ class DelayedPaymentsPendingView extends GetView<DelayedPaymentController> {
               /// SEARCH BAR
               Column(
                 children: [
-                  DelayedPaymentSharedWidgets()
-                      .searchBar(controller.searchController),
-                  height(23),
+                  DelayedPaymentSharedWidgets().searchBar(controller),
+                  height(10),
+                  DelayedPaymentSharedWidgets().appliedFilterBanner(controller),
+                  height(13),
                 ],
               ),
 

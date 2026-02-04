@@ -62,4 +62,7 @@ class AppColorHelper {
   Color get infoBackgroundYellow => _currentTheme.infoBackgroundYellow;
   Color get infoBorderYellow => _currentTheme.infoBorderYellow;
   Color get filterBackgroundColor => _currentTheme.filterBackgroundColor;
+  Color get filterInfoBackgroundColor =>
+      _currentTheme.filterInfoBackgroundColor;
+  Color get filterInfoBorderColor => _currentTheme.filterInfoBorderColor;
 }

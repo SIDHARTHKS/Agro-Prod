@@ -35,7 +35,6 @@ class DelayedPaymentsSettledView extends GetView<DelayedPaymentController> {
             child: ListView(
               padding: const EdgeInsets.only(
                 top: 25,
-                bottom: 35 + kBottomNavigationBarHeight,
               ),
               children: [
                 /// HEADER
@@ -46,10 +45,15 @@ class DelayedPaymentsSettledView extends GetView<DelayedPaymentController> {
 
                 /// SEARCH BAR
                 Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 25),
-                  child: DelayedPaymentSharedWidgets()
-                      .searchBar(controller.searchController),
-                ),
+                    padding: const EdgeInsets.only(top: 25, bottom: 10),
+                    child: Column(
+                      children: [
+                        DelayedPaymentSharedWidgets().searchBar(controller),
+                        height(10),
+                        DelayedPaymentSharedWidgets()
+                            .appliedFilterBanner(controller),
+                      ],
+                    )),
 
                 /// BILL CARDS
                 ...list.map(
@@ -63,7 +67,7 @@ class DelayedPaymentsSettledView extends GetView<DelayedPaymentController> {
                 if (controller.settledVisibleCount.value <
                     controller.settledDisplayList.length)
                   const Padding(
-                    padding: EdgeInsets.all(16),
+                    padding: EdgeInsets.all(5),
                     child: Center(child: CircularProgressIndicator()),
                   ),
               ],

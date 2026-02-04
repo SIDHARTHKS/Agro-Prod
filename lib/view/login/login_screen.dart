@@ -151,7 +151,7 @@ class LoginScreen extends AppBaseView<LoginController> {
                           fit: StackFit.expand,
                           children: [
                             Image.asset(
-                              Assets.images.splashBg1.path,
+                              Assets.images.splashBg4.path,
                               fit: BoxFit.cover,
                             ),
                             Center(
@@ -482,7 +482,7 @@ class LoginScreen extends AppBaseView<LoginController> {
         children: [
           // Background exactly like the ribbon’s final frame
           Image.asset(
-            Assets.images.splashBg1.path,
+            Assets.images.headerBg.path,
             fit: BoxFit.cover,
           ),
 

@@ -3,7 +3,7 @@ import '../env_config.dart';
 class DevEnvironment extends EnvironmentConfig {
   DevEnvironment()
       : super(
-          baseApiurl: 'https://202.164.153.62/TropicalMobAPI2Api', //uat
+          baseApiurl: 'https://retailis.in/TropicalMobAPI2Api', //uat
           title: 'AGROMIS Dev',
           enableLogs: true,
           enableNetworkImages: true,

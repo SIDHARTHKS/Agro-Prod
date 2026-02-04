@@ -22,32 +22,18 @@ class DelayedPayFilterView extends AppBaseView<DelayedPayFilterController> {
 
   Widget _buildBottomSheet() {
     return Container(
-      height: 760, // ✅ FIXED HEIGHT
+      height: 760,
       decoration: BoxDecoration(
         color: AppColorHelper().filterBackgroundColor,
         borderRadius: const BorderRadius.vertical(
-          top: Radius.circular(28), // ✅ ROUNDER TOP
+          top: Radius.circular(28),
         ),
       ),
       child: Column(
         children: [
-          _dragHandle(),
+          height(10),
           Expanded(child: _buildBody()),
         ],
-      ),
-    );
-  }
-
-  Widget _dragHandle() {
-    return Padding(
-      padding: const EdgeInsets.only(top: 10, bottom: 12),
-      child: Container(
-        width: 50,
-        height: 5,
-        decoration: BoxDecoration(
-          color: Colors.grey.shade400,
-          borderRadius: BorderRadius.circular(10),
-        ),
       ),
     );
   }
@@ -62,48 +48,23 @@ class DelayedPayFilterView extends AppBaseView<DelayedPayFilterController> {
         children: [
           _header(),
           height(5),
-          LayoutBuilder(
-            builder: (context, constraints) {
-              return DelayedPaymentSharedWidgets()
-                  .dashedLine(constraints.maxWidth);
-            },
-          ),
+          _divider(),
           height(25),
           _locationSection(),
           height(10),
-          LayoutBuilder(
-            builder: (context, constraints) {
-              return DelayedPaymentSharedWidgets()
-                  .dashedLine(constraints.maxWidth);
-            },
-          ),
+          _divider(),
           height(20),
           _amountRangeSection(),
           height(20),
-          LayoutBuilder(
-            builder: (context, constraints) {
-              return DelayedPaymentSharedWidgets()
-                  .dashedLine(constraints.maxWidth);
-            },
-          ),
+          _divider(),
           height(20),
           _billedDateSection(),
           height(20),
-          LayoutBuilder(
-            builder: (context, constraints) {
-              return DelayedPaymentSharedWidgets()
-                  .dashedLine(constraints.maxWidth);
-            },
-          ),
+          _divider(),
           height(20),
           _committedDateSection(),
           height(20),
-          LayoutBuilder(
-            builder: (context, constraints) {
-              return DelayedPaymentSharedWidgets()
-                  .dashedLine(constraints.maxWidth);
-            },
-          ),
+          _divider(),
           height(20),
           _lateDaysSection(),
           height(20),
@@ -112,6 +73,11 @@ class DelayedPayFilterView extends AppBaseView<DelayedPayFilterController> {
       ),
     );
   }
+
+  Widget _divider() => LayoutBuilder(
+        builder: (context, c) =>
+            DelayedPaymentSharedWidgets().dashedLine(c.maxWidth),
+      );
 
   Widget _header() {
     return Padding(
@@ -225,7 +191,7 @@ class DelayedPayFilterView extends AppBaseView<DelayedPayFilterController> {
             /// Title + value text
             Obx(() {
               final range = controller.amountRange.value ??
-                  const RangeValues(50000, 200000);
+                  const RangeValues(5000, 200000);
               return Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -255,9 +221,8 @@ class DelayedPayFilterView extends AppBaseView<DelayedPayFilterController> {
                 max: 500000,
                 divisions: 50, // optional – remove if you want smooth sliding
                 values: controller.amountRange.value ??
-                    const RangeValues(50000, 200000),
+                    const RangeValues(5000, 200000),
                 onChanged: (value) {
-                  controller.amountTouched.value = true;
                   controller.amountRange.value = value;
                 },
                 activeColor: AppColorHelper().primaryColor,
@@ -332,8 +297,14 @@ class DelayedPayFilterView extends AppBaseView<DelayedPayFilterController> {
 
   Widget _committedDateSection() {
     return Obx(() {
-      final from = controller.committedFrom.value;
-      final to = controller.committedTo.value;
+      final from = controller.isPendingMode
+          ? controller.committedFrom.value
+          : controller.settledFrom.value;
+
+      final to = controller.isPendingMode
+          ? controller.committedTo.value
+          : controller.settledTo.value;
+
       final formatter = DateFormat('dd MMMM yyyy');
 
       final text = (from == null || to == null)
@@ -346,7 +317,9 @@ class DelayedPayFilterView extends AppBaseView<DelayedPayFilterController> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               appText(
-                "Committed Date Range",
+                controller.isPendingMode
+                    ? "Committed Date Range"
+                    : "Settled Date Range",
                 fontSize: 14,
                 fontWeight: FontWeight.normal,
                 color: AppColorHelper().primaryTextColor.withValues(alpha: 0.6),
@@ -354,8 +327,12 @@ class DelayedPayFilterView extends AppBaseView<DelayedPayFilterController> {
               height(8),
               InkWell(
                 onTap: () => _pickCustomDateRange(
-                  from: controller.committedFrom,
-                  to: controller.committedTo,
+                  from: controller.isPendingMode
+                      ? controller.committedFrom
+                      : controller.settledFrom,
+                  to: controller.isPendingMode
+                      ? controller.committedTo
+                      : controller.settledTo,
                 ),
                 child: Container(
                   padding: const EdgeInsets.all(16),
@@ -425,13 +402,12 @@ class DelayedPayFilterView extends AppBaseView<DelayedPayFilterController> {
             Obx(() {
               return CustomRangeSlider(
                 min: 0,
-                max: 180,
-                divisions: 36, // 5-day steps (optional)
+                max: 365,
+                //divisions: 36, // 5-day steps (optional)
                 values:
                     controller.lateDaysRange.value ?? const RangeValues(20, 80),
                 onChanged: (value) {
                   controller.lateDaysRange.value = value;
-                  controller.lateDaysTouched.value = true;
                 },
                 activeColor: AppColorHelper().primaryColor,
                 inactiveColor:
@@ -453,7 +429,15 @@ class DelayedPayFilterView extends AppBaseView<DelayedPayFilterController> {
             child: SizedBox(
               height: 45,
               child: OutlinedButton(
-                onPressed: controller.clearFilters,
+                onPressed: () {
+                  final main = Get.find<DelayedPaymentController>();
+
+                  controller.clearFilters(); // reset filter UI
+                  main.clearFilters(); // reset & rebuild data
+
+                  // optional: close filter
+                  Get.back();
+                },
                 style: OutlinedButton.styleFrom(
                   backgroundColor: AppColorHelper().cardColor,
                   side: BorderSide(
@@ -481,32 +465,7 @@ class DelayedPayFilterView extends AppBaseView<DelayedPayFilterController> {
               height: 45,
               child: ElevatedButton(
                 onPressed: () {
-                  final main = Get.find<DelayedPaymentController>();
-
-                  // save filter state
-                  main.amountRange.value = controller.amountRange.value;
-                  main.lateDaysRange.value = controller.lateDaysRange.value;
-                  main.billedFrom.value = controller.billedFrom.value;
-                  main.billedTo.value = controller.billedTo.value;
-                  main.committedFrom.value = controller.committedFrom.value;
-                  main.committedTo.value = controller.committedTo.value;
-                  main.selectedLocations
-                      .assignAll(controller.selectedLocations);
-
-                  main.applyFilters(
-                    locations: controller.selectedLocations,
-                    amountRange: controller.amountTouched.value
-                        ? controller.amountRange.value
-                        : null,
-                    lateDaysRange: controller.lateDaysTouched.value
-                        ? controller.lateDaysRange.value
-                        : null,
-                    billedFrom: controller.billedFrom.value,
-                    billedTo: controller.billedTo.value,
-                    committedFrom: controller.committedFrom.value,
-                    committedTo: controller.committedTo.value,
-                  );
-
+                  controller.applyFilters();
                   Get.back(result: true);
                 },
                 style: ElevatedButton.styleFrom(

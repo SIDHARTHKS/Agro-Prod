@@ -27,7 +27,7 @@ final routes = [
       page: () => LoginScreen(),
       binding: const LoginBinding(),
       transition: Transition.fadeIn,
-      transitionDuration: const Duration(milliseconds: 100)),
+      transitionDuration: const Duration(milliseconds: 500)),
   GetPage(
       name: homePageRoute,
       page: () => const HomeScreen(),

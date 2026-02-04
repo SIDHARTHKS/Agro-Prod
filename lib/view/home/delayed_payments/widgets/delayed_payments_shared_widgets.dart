@@ -2,14 +2,16 @@ import 'package:agro/gen/assets.gen.dart';
 import 'package:agro/view/widget/searchbar/custom_searchbar.dart';
 import 'package:flutter_dash/flutter_dash.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import '../../../../helper/color_helper.dart';
 import 'package:agro/model/delayed_payments_model.dart';
 import 'package:intl/intl.dart';
 import '../../../../helper/sizer.dart';
 import '../../../widget/common_widget.dart';
-import '../../../../binding/delayed_pay_filter_binding.dart';
-import 'package:get/get.dart';
 import '../widgets/delayed_pay_filter_view.dart';
+import '../../../../controller/delayed_payment_controller.dart';
+// import '../../../../controller/delayed_pay_filter_controller.dart';
+import '../../../../binding/delayed_pay_filter_binding.dart';
 
 class DelayedPaymentSharedWidgets {
   Widget heading(String title) {
@@ -61,14 +63,14 @@ class DelayedPaymentSharedWidgets {
     );
   }
 
-  Widget searchBar(TextEditingController controller) {
+  Widget searchBar(DelayedPaymentController controller) {
     return Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 20),
-        child: SizedBox(
-          height: 45,
-          child: CustomSearchBar(
-            controller: controller,
-            hintText: "Search for cust-omers, locations, bills",
+      padding: const EdgeInsets.symmetric(horizontal: 20),
+      child: SizedBox(
+        height: 45,
+        child: CustomSearchBar(
+            controller: controller.searchController,
+            hintText: "Search for customers, locations, bills",
             onFilterTap: () {
               const DelayedPayFilterBinding().injectDependencies();
 
@@ -77,9 +79,9 @@ class DelayedPaymentSharedWidgets {
                 isScrollControlled: true,
                 backgroundColor: Colors.transparent,
               );
-            },
-          ),
-        ));
+            }),
+      ),
+    );
   }
 
   Widget billInfoRow(DelayedPayListDtl data) {
@@ -257,5 +259,46 @@ class DelayedPaymentSharedWidgets {
       symbol: '',
       decimalDigits: decimal,
     ).format(amount);
+  }
+
+  Widget appliedFilterBanner(DelayedPaymentController controller) {
+    return Obx(() {
+      if (!controller.hasActiveFilters) {
+        return const SizedBox.shrink();
+      }
+
+      return Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+          decoration: BoxDecoration(
+              color: AppColorHelper().filterInfoBackgroundColor,
+              borderRadius: BorderRadius.circular(10),
+              border: Border.all(
+                color: AppColorHelper().filterInfoBorderColor,
+              )),
+          child: Row(
+            children: [
+              Expanded(
+                child: appText(
+                  "${controller.appliedFilterCount} filters applied",
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                  color: AppColorHelper().primaryTextColor,
+                ),
+              ),
+              GestureDetector(
+                onTap: controller.clearFilters,
+                child: Image.asset(
+                  Assets.icons.close.path,
+                  height: 20,
+                  width: 20,
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    });
   }
 }

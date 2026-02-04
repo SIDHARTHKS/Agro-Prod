@@ -59,6 +59,8 @@ class AppTheme {
   final Color infoBackgroundYellow;
   final Color infoBorderYellow;
   final Color filterBackgroundColor;
+  final Color filterInfoBackgroundColor;
+  final Color filterInfoBorderColor;
 
   final String fontFamily;
   final String imagePath; // Path to client-specific images
@@ -118,6 +120,8 @@ class AppTheme {
     required this.infoBackgroundYellow,
     required this.infoBorderYellow,
     required this.filterBackgroundColor,
+    required this.filterInfoBackgroundColor,
+    required this.filterInfoBorderColor,
   });
 }
 
@@ -189,6 +193,8 @@ AppTheme _demoDarkTheme() => AppTheme(
       infoBackgroundYellow: const Color.fromARGB(255, 255, 225, 106),
       infoBorderYellow: const Color.fromARGB(255, 201, 161, 0),
       filterBackgroundColor: const Color.fromARGB(255, 239, 246, 244),
+      filterInfoBackgroundColor: const Color.fromARGB(255, 255, 251, 226),
+      filterInfoBorderColor: const Color.fromARGB(255, 246, 239, 199),
 
       fontFamily: 'Mona Sans',
       imagePath: 'assets/images/demo.png',
@@ -252,6 +258,8 @@ AppTheme _demoLightTheme() => AppTheme(
       infoBackgroundYellow: const Color.fromARGB(255, 255, 225, 106),
       infoBorderYellow: const Color.fromARGB(255, 201, 161, 0),
       filterBackgroundColor: const Color.fromARGB(255, 239, 246, 244),
+      filterInfoBackgroundColor: const Color.fromARGB(255, 255, 251, 226),
+      filterInfoBorderColor: const Color.fromARGB(255, 246, 239, 199),
 
       fontFamily: 'Mona Sans',
       imagePath: 'assets/images/demo.png',

@@ -9,6 +9,52 @@ import '../helper/app_message.dart';
 import '../helper/enum.dart';
 import 'package:intl/intl.dart';
 
+class FilterState {
+  final RxList<String> locations = <String>[].obs;
+  final Rx<RangeValues?> amountRange = Rx<RangeValues?>(null);
+  final Rx<RangeValues?> lateDaysRange = Rx<RangeValues?>(null);
+
+  // 📄 Billed date (common / optional)
+  final Rx<DateTime?> billedFrom = Rx<DateTime?>(null);
+  final Rx<DateTime?> billedTo = Rx<DateTime?>(null);
+
+  // ⏳ Pending screen
+  final Rx<DateTime?> committedFrom = Rx<DateTime?>(null);
+  final Rx<DateTime?> committedTo = Rx<DateTime?>(null);
+
+  // ✅ Settled screen
+  final Rx<DateTime?> settledFrom = Rx<DateTime?>(null);
+  final Rx<DateTime?> settledTo = Rx<DateTime?>(null);
+
+  void clear() {
+    locations.clear();
+    amountRange.value = null;
+    lateDaysRange.value = null;
+
+    billedFrom.value = null;
+    billedTo.value = null;
+
+    committedFrom.value = null;
+    committedTo.value = null;
+
+    settledFrom.value = null;
+    settledTo.value = null;
+  }
+
+  int get count {
+    int c = 0;
+    if (locations.isNotEmpty) c++;
+    if (amountRange.value != null) c++;
+    if (lateDaysRange.value != null) c++;
+    if (billedFrom.value != null && billedTo.value != null) c++;
+    if (committedFrom.value != null && committedTo.value != null) c++;
+    if (settledFrom.value != null && settledTo.value != null) c++;
+    return c;
+  }
+
+  bool get hasFilters => count > 0;
+}
+
 class DelayedPaymentController extends AppBaseController
     with GetSingleTickerProviderStateMixin {
   final TextEditingController searchController = TextEditingController();
@@ -34,10 +80,15 @@ class DelayedPaymentController extends AppBaseController
   final RxList<DelayedPayListDtl> settledDisplayList =
       <DelayedPayListDtl>[].obs;
 
+  final FilterState pendingFilters = FilterState();
+  final FilterState settledFilters = FilterState();
+
   @override
   Future<void> onInit() async {
     // 🔑 This is what drives search
-    searchController.addListener(rebuildDisplayLists);
+    searchController.addListener(() {
+      applySearch(searchController.text);
+    });
 
     // 1. Try load cached data first
     final cachedJson =
@@ -51,6 +102,10 @@ class DelayedPaymentController extends AppBaseController
         // L1 – Static
         pendingStaticList.assignAll(cachedData.delayedPayPendingListDtls ?? []);
         settledStaticList.assignAll(cachedData.delayedPaySettledListDtls ?? []);
+
+        // ✅ SORT STATIC LISTS ONCE
+        _sortByBilledDateDesc(pendingStaticList);
+        _sortByBilledDateDesc(settledStaticList);
 
         pendingDisplayList.assignAll(pendingStaticList);
         // Settled: only first 10 enter the pipeline
@@ -72,8 +127,15 @@ class DelayedPaymentController extends AppBaseController
     super.onInit();
   }
 
-  void showPending() => isPending.value = true;
-  void showSettled() => isPending.value = false;
+  void showPending() {
+    isPending.value = true;
+    rebuildDisplayLists();
+  }
+
+  void showSettled() {
+    isPending.value = false;
+    rebuildDisplayLists();
+  }
 
   Future<void> _setArguments() async {
     // keep your existing argument logic here if needed
@@ -101,6 +163,9 @@ class DelayedPaymentController extends AppBaseController
 
         pendingStaticList.assignAll(data.delayedPayPendingListDtls ?? []);
         settledStaticList.assignAll(data.delayedPaySettledListDtls ?? []);
+
+        _sortByBilledDateDesc(pendingStaticList);
+        _sortByBilledDateDesc(settledStaticList);
 
         pendingDisplayList.assignAll(pendingStaticList);
         settledDisplayList.assignAll(settledStaticList.take(10));
@@ -144,15 +209,22 @@ class DelayedPaymentController extends AppBaseController
     DateTime? billedTo,
     DateTime? committedFrom,
     DateTime? committedTo,
+    DateTime? settledFrom,
+    DateTime? settledTo,
   }) {
-    selectedLocations.assignAll(locations ?? []);
-    this.amountRange.value = amountRange;
-    this.lateDaysRange.value = lateDaysRange;
+    final f = _activeFilters;
 
-    this.billedFrom.value = billedFrom;
-    this.billedTo.value = billedTo;
-    this.committedFrom.value = committedFrom;
-    this.committedTo.value = committedTo;
+    f.locations.assignAll(locations ?? []);
+    f.amountRange.value = amountRange;
+    f.lateDaysRange.value = lateDaysRange;
+
+    f.billedFrom.value = billedFrom;
+    f.billedTo.value = billedTo;
+    f.committedFrom.value = committedFrom;
+    f.committedTo.value = committedTo;
+    // ✅ THIS WAS MISSING
+    f.settledFrom.value = settledFrom;
+    f.settledTo.value = settledTo;
 
     rebuildDisplayLists();
   }
@@ -162,15 +234,18 @@ class DelayedPaymentController extends AppBaseController
   }
 
   void clearFilters() {
-    selectedLocations.clear();
-    amountRange.value = null;
-    lateDaysRange.value = null;
-    billedFrom.value = null;
-    billedTo.value = null;
-    committedFrom.value = null;
-    committedTo.value = null;
+    final f = _activeFilters;
+    f.clear();
 
-    rebuildDisplayLists();
+    if (isPending.value) {
+      // Pending → full rebuild
+      pendingDisplayList.assignAll(pendingStaticList);
+      pendingVisibleCount.value = pendingPageSize;
+    } else {
+      // ✅ Settled → reset to default 10
+      settledDisplayList.assignAll(settledStaticList.take(10));
+      settledVisibleCount.value = 10;
+    }
   }
 
   final RxInt settledVisibleCount = 10.obs;
@@ -241,22 +316,18 @@ class DelayedPaymentController extends AppBaseController
     }
   }
 
-// FILTER STATE (persisted)
-  final Rx<RangeValues?> amountRange = Rx<RangeValues?>(null);
-  final Rx<RangeValues?> lateDaysRange = Rx<RangeValues?>(null);
-
-  final Rx<DateTime?> billedFrom = Rx<DateTime?>(null);
-  final Rx<DateTime?> billedTo = Rx<DateTime?>(null);
-
-  final Rx<DateTime?> committedFrom = Rx<DateTime?>(null);
-  final Rx<DateTime?> committedTo = Rx<DateTime?>(null);
-
-  final RxList<String> selectedLocations = <String>[].obs;
+  void _sortByBilledDateDesc(List<DelayedPayListDtl> list) {
+    list.sort(
+      (a, b) => _parseBilledDateOrMin(b.billedOn)
+          .compareTo(_parseBilledDateOrMin(a.billedOn)),
+    );
+  }
 
   bool _matches(DelayedPayListDtl e) {
+    final f = _activeFilters;
     final key = searchController.text.trim().toLowerCase();
 
-    // 🔍 SEARCH
+    // SEARCH
     if (key.isNotEmpty &&
         !(e.custName ?? '').toLowerCase().contains(key) &&
         !(e.location ?? '').toLowerCase().contains(key) &&
@@ -264,68 +335,128 @@ class DelayedPaymentController extends AppBaseController
       return false;
     }
 
-    // 📍 LOCATION
-    if (selectedLocations.isNotEmpty &&
-        !selectedLocations.contains(e.location)) {
+    // LOCATION
+    if (f.locations.isNotEmpty && !f.locations.contains(e.location)) {
       return false;
     }
 
-    // 💰 AMOUNT
-    final range = amountRange.value;
+    // AMOUNT
+    final range = f.amountRange.value;
     if (range != null) {
       final amount = _toDouble(e.billAmt);
-      if (amount < range.start || amount > range.end) {
-        return false;
-      }
+      if (amount < range.start || amount > range.end) return false;
     }
 
-    // ⏱️ LATE DAYS
-    final lateRange = lateDaysRange.value;
-    if (lateRange != null) {
-      final days = _toDouble(e.lateDays);
+    if (_isLateDaysActive(f)) {
+      final lateRange = f.lateDaysRange.value!;
+      final days = _parseLateDays(e.lateDays);
+
+      // ❌ no lateDays → do NOT match
+      if (days == null) return false;
+
       if (days < lateRange.start || days > lateRange.end) {
         return false;
       }
     }
 
-    final df = DateFormat('dd/MM/yyyy');
+    final df = DateFormat('dd MMM yyyy');
 
-    // 📅 BILLED DATE
-    if (billedFrom.value != null && billedTo.value != null) {
-      if (e.billedOn == null) return false;
-      final d = df.tryParse(e.billedOn!);
+    // 🔹 BILLED DATE (COMMON FOR BOTH)
+    if (f.billedFrom.value != null && f.billedTo.value != null) {
+      final d = df.tryParse(e.billedOn ?? '');
       if (d == null ||
-          d.isBefore(billedFrom.value!) ||
-          d.isAfter(billedTo.value!)) {
+          d.isBefore(f.billedFrom.value!) ||
+          d.isAfter(f.billedTo.value!)) {
         return false;
       }
     }
 
-    // 📅 COMMITTED DATE
-    if (committedFrom.value != null && committedTo.value != null) {
-      if (e.committedOn == null) return false;
-      final d = df.tryParse(e.committedOn!);
-      if (d == null ||
-          d.isBefore(committedFrom.value!) ||
-          d.isAfter(committedTo.value!)) {
-        return false;
+    if (isPending.value) {
+      // 🔹 Pending → committedOn
+      if (f.committedFrom.value != null && f.committedTo.value != null) {
+        final d = df.tryParse(e.committedOn ?? '');
+        if (d == null ||
+            d.isBefore(f.committedFrom.value!) ||
+            d.isAfter(f.committedTo.value!)) {
+          return false;
+        }
+      }
+    } else {
+      // 🔹 Settled → settledOn
+      if (f.settledFrom.value != null && f.settledTo.value != null) {
+        final d = df.tryParse(e.settledOn ?? '');
+        if (d == null ||
+            d.isBefore(f.settledFrom.value!) ||
+            d.isAfter(f.settledTo.value!)) {
+          return false;
+        }
       }
     }
 
     return true;
   }
 
+  DateTime _parseBilledDateOrMin(String? value) {
+    if (value == null || value.trim().isEmpty) {
+      return DateTime.fromMillisecondsSinceEpoch(0);
+    }
+
+    try {
+      // API format: "28 May 2025"
+      return DateFormat('dd MMM yyyy').parse(value);
+    } catch (_) {
+      return DateTime.fromMillisecondsSinceEpoch(0);
+    }
+  }
+
   void rebuildDisplayLists() {
-    pendingDisplayList.assignAll(
-      pendingStaticList.where(_matches),
-    );
+    // ---------------- Pending
+    final pendingMatched = pendingStaticList.where(_matches).toList()
+      ..sort((a, b) => _parseBilledDateOrMin(b.billedOn)
+          .compareTo(_parseBilledDateOrMin(a.billedOn)));
 
-    settledDisplayList.assignAll(
-      settledStaticList.where(_matches),
-    );
-
+    pendingDisplayList.assignAll(pendingMatched);
     pendingVisibleCount.value = pendingPageSize;
-    settledVisibleCount.value =
-        searchController.text.isEmpty ? 10 : settledDisplayList.length;
+
+    // ---------------- Settled
+    final settledMatched = settledStaticList.where(_matches).toList()
+      ..sort((a, b) => _parseBilledDateOrMin(b.billedOn)
+          .compareTo(_parseBilledDateOrMin(a.billedOn)));
+
+    final hasActiveFilter = _activeFilters.hasFilters;
+    final hasSearch = searchController.text.trim().isNotEmpty;
+
+    if (!hasActiveFilter && !hasSearch) {
+      // ✅ Default settled → only 10 (but sorted)
+      settledDisplayList.assignAll(settledMatched.take(10));
+      settledVisibleCount.value = 10;
+    } else {
+      // ✅ Filtered/search → full sorted list
+      settledDisplayList.assignAll(settledMatched);
+      settledVisibleCount.value = settledMatched.length;
+    }
+  }
+
+  int get appliedFilterCount => _activeFilters.count;
+
+  bool get hasActiveFilters => _activeFilters.hasFilters;
+  FilterState get _activeFilters =>
+      isPending.value ? pendingFilters : settledFilters;
+
+  bool _isLateDaysActive(FilterState f) {
+    final r = f.lateDaysRange.value;
+    if (r == null) return false;
+
+    // default range = NOT a filter
+    return !(r.start == 20 && r.end == 80);
+  }
+
+  double? _parseLateDays(Object? value) {
+    if (value == null) return null;
+    if (value is num) return value.toDouble();
+    if (value is String && value.trim().isNotEmpty) {
+      return double.tryParse(value);
+    }
+    return null;
   }
 }
