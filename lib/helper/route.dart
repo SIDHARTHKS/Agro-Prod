@@ -6,11 +6,14 @@ import '../binding/login_binding.dart';
 import '../binding/splash_binding.dart';
 import '../view/home/home_screen.dart';
 import '../view/login/login_screen.dart';
+import '../view/home/homeView/home_view.dart';
+import '../binding/home_view_binding.dart';
 import '../view/home/bills_summary/bill_summary_view.dart';
 
 const loginPageRoute = '/login';
 const splashPageRoute = '/splash';
 const homePageRoute = '/home';
+const homeViewPageRoute = '/home/view';
 const billSummaryRoute = '/home/bills_summary';
 
 final routes = [
@@ -32,6 +35,13 @@ final routes = [
       name: homePageRoute,
       page: () => const HomeScreen(),
       binding: const HomeBinding(),
+      transition: Transition.cupertino,
+      transitionDuration: const Duration(milliseconds: 250)),
+
+  GetPage(
+      name: homeViewPageRoute,
+      page: () => HomeView(),
+      binding: const HomeViewBinding(),
       transition: Transition.cupertino,
       transitionDuration: const Duration(milliseconds: 250)),
 

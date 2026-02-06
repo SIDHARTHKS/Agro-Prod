@@ -94,4 +94,5 @@ Map<String, String> enUS = {
   //custom
 
   salesDepotOverview: 'Sales Depot Overview',
+  delayedPaymentsOf: 'Delayed Payments of',
 };

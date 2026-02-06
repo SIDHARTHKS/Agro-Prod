@@ -1,4 +1,4 @@
-import 'package:agro/controller/home_controller.dart';
+import 'package:agro/controller/home_view_controller.dart';
 import 'package:agro/helper/app_message.dart';
 import 'package:agro/helper/app_string.dart';
 import 'package:agro/helper/color_helper.dart';
@@ -10,9 +10,13 @@ import 'package:get/get.dart';
 import 'package:stacked_animated_list/ui/stacked_list_widget.dart';
 import '../../widget/common_widget.dart';
 import 'package:agro/gen/assets.gen.dart';
+import 'package:agro/view/widget/saleschart/sales_trend_card.dart';
+import '../../../controller/sales_trend_controller.dart';
 
-class HomeView extends AppBaseView<HomeController> {
-  HomeView({super.key});
+class HomeView extends AppBaseView<HomeViewController> {
+  HomeView({super.key}) {
+    Get.put(HomeViewController());
+  }
 
   @override
   Widget buildView() => _buildScaffold();
@@ -99,7 +103,7 @@ class HomeView extends AppBaseView<HomeController> {
                 customers: "30",
               ),
 
-              height(20),
+              height(30),
 
               // ✅ Title
               appText(
@@ -133,14 +137,41 @@ class HomeView extends AppBaseView<HomeController> {
                 }),
               ),
 
-              height(20),
+              height(30),
 
-              delayedPaymentsSummary(
-                amount: "₹ 5,26,300.00",
-                noOfCustomers: "15",
+              // ✅ Title
+              appText(
+                delayedPaymentsOf.tr,
+                color: AppColorHelper().primaryTextColor,
+                fontWeight: FontWeight.w500,
+                fontSize: 16,
               ),
 
+              height(20),
+
+              Obx(() {
+                final d = controller.selectedDelayedPay;
+
+                return delayedPaymentsSummary(
+                  amount: "₹ ${d.amount}",
+                  noOfCustomers: d.totalCustomers.toString(),
+                  noCustomersLessThan50: d.lessThan50Days.toString(),
+                  noCustomersMoreThan50: d.moreThan50Days.toString(),
+                );
+              }),
+
               height(10),
+
+              Obx(() {
+                final trend = controller.selectedSalesTrend;
+
+                return SalesTrendCard(
+                  location: trend.location,
+                  weekly: trend.weekly,
+                  monthly: trend.monthly,
+                  yearly: trend.yearly,
+                );
+              }),
             ],
           ),
         ),
@@ -160,13 +191,13 @@ class HomeView extends AppBaseView<HomeController> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.06),
-            blurRadius: 12,
-            offset: const Offset(0, 4),
-          ),
-        ],
+        // boxShadow: [
+        //   BoxShadow(
+        //     color: Colors.black.withOpacity(0.06),
+        //     blurRadius: 12,
+        //     offset: const Offset(0, 4),
+        //   ),
+        // ],
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
@@ -242,10 +273,11 @@ class HomeView extends AppBaseView<HomeController> {
     );
   }
 
-  Widget delayedPaymentsSummary({
-    required String amount,
-    required String noOfCustomers,
-  }) {
+  Widget delayedPaymentsSummary(
+      {required String amount,
+      required String noOfCustomers,
+      required String noCustomersLessThan50,
+      required String noCustomersMoreThan50}) {
     return Container(
         width: double.infinity,
         padding: const EdgeInsets.all(16),
@@ -333,24 +365,64 @@ class HomeView extends AppBaseView<HomeController> {
               children: [
                 Expanded(
                   child: SizedBox(
-                    height: 45,
+                    height: 65,
                     child: OutlinedButton(
                       onPressed: () {},
                       style: OutlinedButton.styleFrom(
-                        backgroundColor:
-                            AppColorHelper().warningBackgroundYellow,
+                        backgroundColor: AppColorHelper()
+                            .warningBackgroundYellow
+                            .withOpacity(0.5),
                         side: BorderSide(
-                          color: AppColorHelper().warningBackgroundYellow,
+                          color: AppColorHelper()
+                              .warningBackgroundYellow
+                              .withOpacity(0.1),
                         ),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(5),
                         ),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 8), // 🔥 important
                       ),
-                      child: appText(
-                        "Clear All Filters",
-                        fontWeight: FontWeight.w500,
-                        color: AppColorHelper().warningYellowColor,
-                        fontSize: 14,
+                      child: Column(
+                        mainAxisAlignment:
+                            MainAxisAlignment.center, // 🔥 center vertically
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          // ICON + TEXT (centered)
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment
+                                .center, // 🔥 center horizontally
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              SizedBox(
+                                height: 14, // 🔥 realistic icon size
+                                width: 14,
+                                child: Image.asset(
+                                  Assets.icons.clockIcon.path,
+                                  fit: BoxFit.contain,
+                                  color: AppColorHelper().warningYellowColor,
+                                ),
+                              ),
+                              const SizedBox(width: 6), // 🔥 controlled gap
+                              appText(
+                                "1 - 50 Days Late",
+                                fontWeight: FontWeight.w500,
+                                color: AppColorHelper().warningYellowColor,
+                                fontSize: 14,
+                              ),
+                            ],
+                          ),
+
+                          const SizedBox(
+                              height: 4), // 🔥 controlled vertical gap
+
+                          appText(
+                            "$noCustomersLessThan50 Customers",
+                            fontWeight: FontWeight.w500,
+                            color: AppColorHelper().warningYellowColor,
+                            fontSize: 14,
+                          ),
+                        ],
                       ),
                     ),
                   ),
@@ -361,23 +433,61 @@ class HomeView extends AppBaseView<HomeController> {
                 /// Apply Filters
                 Expanded(
                   child: SizedBox(
-                    height: 45,
+                    height: 65,
                     child: ElevatedButton(
-                      onPressed: () {},
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColorHelper().warningBackgroundRed,
-                        elevation: 0,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(5),
+                        onPressed: () {},
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColorHelper()
+                              .warningBackgroundRed
+                              .withOpacity(0.5),
+                          elevation: 0,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(5),
+                          ),
                         ),
-                      ),
-                      child: appText(
-                        "Apply Filters",
-                        fontWeight: FontWeight.w500,
-                        color: AppColorHelper().warningRedColor,
-                        fontSize: 14,
-                      ),
-                    ),
+                        child: Center(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.center, // 🔥 fix
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  SizedBox(
+                                    height: 14,
+                                    width: 14,
+                                    child: Image.asset(
+                                      Assets.icons.clockIcon.path,
+                                      fit: BoxFit.contain,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 6),
+                                  Flexible(
+                                    child: appText(
+                                      "50 Days or More Late",
+                                      fontWeight: FontWeight.w500,
+                                      color: AppColorHelper().warningRedColor,
+                                      fontSize: 14,
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 4),
+                              appText(
+                                "$noCustomersMoreThan50 Customers",
+                                fontWeight: FontWeight.w500,
+                                color: AppColorHelper().warningRedColor,
+                                fontSize: 14,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ],
+                          ),
+                        )),
                   ),
                 ),
               ],

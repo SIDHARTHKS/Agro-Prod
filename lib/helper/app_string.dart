@@ -183,6 +183,7 @@ const String allRightReserved = '2023  |  All rights reserved';
 //custom
 
 const String salesDepotOverview = 'SalesDepotOverview';
+const String delayedPaymentsOf = 'DelayedPaymentsOf';
 
 //Login Credentials
 
