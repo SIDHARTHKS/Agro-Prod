@@ -24,7 +24,6 @@ class SalesSummaryWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
       padding: const EdgeInsets.fromLTRB(18, 30, 18, 18),
       decoration: BoxDecoration(
         color: Colors.white,

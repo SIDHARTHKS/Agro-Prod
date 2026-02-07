@@ -8,8 +8,9 @@ class SalesTrendCard extends StatelessWidget {
   final List<double> weekly;
   final List<double> monthly;
   final List<double> yearly;
+  final ScrollController _scrollController = ScrollController();
 
-  const SalesTrendCard({
+  SalesTrendCard({
     super.key,
     required this.location,
     required this.weekly,
@@ -78,7 +79,7 @@ class SalesTrendCard extends StatelessWidget {
     required double maxY,
   }) {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.fromLTRB(0, 16, 16, 16),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
@@ -112,9 +113,9 @@ class SalesTrendCard extends StatelessWidget {
         LineChartData(
           minY: 0,
           maxY: maxY,
-          gridData: FlGridData(show: false),
+          gridData: const FlGridData(show: false),
           borderData: FlBorderData(show: false),
-          extraLinesData: ExtraLinesData(extraLinesOnTop: false),
+          extraLinesData: const ExtraLinesData(extraLinesOnTop: false),
           titlesData: FlTitlesData(
             topTitles: const AxisTitles(
               sideTitles: SideTitles(showTitles: false, reservedSize: 0),
@@ -135,7 +136,9 @@ class SalesTrendCard extends StatelessWidget {
                   return Padding(
                     padding: const EdgeInsets.only(right: 4),
                     child: Text(
-                      "₹${(value / 1000).round()}k",
+                      value >= 1000
+                          ? "₹${value ~/ 1000}k"
+                          : "₹${value.toInt()}",
                       style: const TextStyle(fontSize: 11),
                       textAlign: TextAlign.right,
                     ),
@@ -158,11 +161,24 @@ class SalesTrendCard extends StatelessWidget {
     required List<String> labels,
     required double maxY,
   }) {
-    final double chartWidth = controller.isScrollable
+    final double minWidth = Get.width - 80; // viewport minus Y-axis & padding
+
+    final double chartWidth = controller.range.value == SalesRange.year
         ? labels.length * _pointSpacing
-        : labels.length * _pointSpacing; // week/month also fixed
+        : minWidth; // 🔥 stretch week & month
+
+    if (controller.range.value == SalesRange.year) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (_scrollController.hasClients) {
+          _scrollController.jumpTo(
+            _scrollController.position.maxScrollExtent,
+          );
+        }
+      });
+    }
 
     return SingleChildScrollView(
+      controller: _scrollController,
       scrollDirection: Axis.horizontal,
       physics: controller.isScrollable
           ? const BouncingScrollPhysics()
@@ -172,33 +188,46 @@ class SalesTrendCard extends StatelessWidget {
         height: 220,
         child: LineChart(
           LineChartData(
-            minX: 0,
-            maxX: labels.length - 1,
+            minX: -0.3,
+            maxX: labels.length - 1 + 0.3,
             minY: 0,
             maxY: maxY,
-            gridData: FlGridData(
+            gridData: const FlGridData(
               show: true,
               drawVerticalLine: false,
             ),
             titlesData: FlTitlesData(
-              leftTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+              leftTitles:
+                  const AxisTitles(sideTitles: SideTitles(showTitles: false)),
               rightTitles:
-                  AxisTitles(sideTitles: SideTitles(showTitles: false)),
-              topTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                  const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+              topTitles:
+                  const AxisTitles(sideTitles: SideTitles(showTitles: false)),
               bottomTitles: AxisTitles(
                 sideTitles: SideTitles(
                   showTitles: true,
                   interval: 1,
                   reservedSize: 22,
                   getTitlesWidget: (value, _) {
+                    // 🔥 Only show labels for whole numbers
+                    if (value % 1 != 0) {
+                      return const SizedBox.shrink();
+                    }
+
                     final i = value.toInt();
-                    if (i >= labels.length) return const SizedBox.shrink();
+
+                    if (i < 0 || i >= labels.length) {
+                      return const SizedBox.shrink();
+                    }
+
                     return SizedBox(
                       width: _pointSpacing,
                       child: Center(
                         child: Text(
                           labels[i],
                           style: const TextStyle(fontSize: 11),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                         ),
                       ),
                     );
@@ -211,7 +240,7 @@ class SalesTrendCard extends StatelessWidget {
               LineChartBarData(
                 isCurved: true,
                 barWidth: 3,
-                dotData: FlDotData(show: true),
+                dotData: const FlDotData(show: true),
                 spots: List.generate(
                   values.length,
                   (i) => FlSpot(i.toDouble(), values[i]),

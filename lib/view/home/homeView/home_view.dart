@@ -7,11 +7,10 @@ import 'package:agro/helper/sizer.dart';
 import 'package:agro/view/widget/summary/sales_summary_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:stacked_animated_list/ui/stacked_list_widget.dart';
 import '../../widget/common_widget.dart';
 import 'package:agro/gen/assets.gen.dart';
 import 'package:agro/view/widget/saleschart/sales_trend_card.dart';
-import '../../../controller/sales_trend_controller.dart';
+import 'package:agro/view/widget/depotcardcarousel/depot_card_carousel.dart';
 
 class HomeView extends AppBaseView<HomeViewController> {
   HomeView({super.key}) {
@@ -117,21 +116,13 @@ class HomeView extends AppBaseView<HomeViewController> {
 
               // ✅ Stacked Card Widget (fixed height = safe)
               SizedBox(
-                height: 420,
                 width: double.infinity,
                 child: Obx(() {
-                  return StackedListWidget(
-                    key: ValueKey(controller.currentIndex.value),
-                    listItems: _getRotatedCards(),
-                    listItemWidth: Get.width,
-                    animationDuration: const Duration(milliseconds: 450),
-                    borderRadius: BorderRadius.circular(18),
-                    rotationAngle: 0,
-                    additionalTranslateOffsetBeyondScreen: 0.25,
-                    longPressDelay: 200,
-                    onCenterCardClick: (index) {
-                      appLog("Tapped Cards: $index");
-                      controller.nextCard(salesData.length);
+                  return DepotCardCarousel(
+                    items: _getRotatedCards(),
+                    currentIndex: controller.currentIndex.value,
+                    onChanged: (i) {
+                      controller.currentIndex.value = i;
                     },
                   );
                 }),
@@ -361,133 +352,92 @@ class HomeView extends AppBaseView<HomeViewController> {
             }),
             height(20),
             Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
+                // --- First Equal Container ---
                 Expanded(
-                  child: SizedBox(
+                  child: Container(
                     height: 65,
-                    child: OutlinedButton(
-                      onPressed: () {},
-                      style: OutlinedButton.styleFrom(
-                        backgroundColor: AppColorHelper()
-                            .warningBackgroundYellow
-                            .withOpacity(0.5),
-                        side: BorderSide(
-                          color: AppColorHelper()
-                              .warningBackgroundYellow
-                              .withOpacity(0.1),
+                    decoration: BoxDecoration(
+                      color: AppColorHelper().warningBackgroundYellow,
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Image.asset(
+                              Assets.icons.clockIcon.path,
+                              height: 14,
+                              width: 14,
+                              color: AppColorHelper().warningYellowColor,
+                            ),
+                            const SizedBox(width: 6),
+                            appText(
+                              "1 - 50 Days Late",
+                              fontWeight: FontWeight.w500,
+                              color: AppColorHelper().warningYellowColor,
+                              fontSize: 14,
+                            ),
+                          ],
                         ),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(5),
+                        const SizedBox(height: 4),
+                        appText(
+                          "$noCustomersLessThan50 Customers",
+                          fontWeight: FontWeight.w500,
+                          color: AppColorHelper().warningYellowColor,
+                          fontSize: 14,
                         ),
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 8), // 🔥 important
-                      ),
-                      child: Column(
-                        mainAxisAlignment:
-                            MainAxisAlignment.center, // 🔥 center vertically
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          // ICON + TEXT (centered)
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment
-                                .center, // 🔥 center horizontally
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              SizedBox(
-                                height: 14, // 🔥 realistic icon size
-                                width: 14,
-                                child: Image.asset(
-                                  Assets.icons.clockIcon.path,
-                                  fit: BoxFit.contain,
-                                  color: AppColorHelper().warningYellowColor,
-                                ),
-                              ),
-                              const SizedBox(width: 6), // 🔥 controlled gap
-                              appText(
-                                "1 - 50 Days Late",
-                                fontWeight: FontWeight.w500,
-                                color: AppColorHelper().warningYellowColor,
-                                fontSize: 14,
-                              ),
-                            ],
-                          ),
-
-                          const SizedBox(
-                              height: 4), // 🔥 controlled vertical gap
-
-                          appText(
-                            "$noCustomersLessThan50 Customers",
-                            fontWeight: FontWeight.w500,
-                            color: AppColorHelper().warningYellowColor,
-                            fontSize: 14,
-                          ),
-                        ],
-                      ),
+                      ],
                     ),
                   ),
                 ),
 
-                const SizedBox(width: 12),
+                const SizedBox(width: 12), // The gap between them
 
-                /// Apply Filters
+                // --- Second Equal Container ---
                 Expanded(
-                  child: SizedBox(
+                  child: Container(
                     height: 65,
-                    child: ElevatedButton(
-                        onPressed: () {},
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: AppColorHelper()
-                              .warningBackgroundRed
-                              .withOpacity(0.5),
-                          elevation: 0,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(5),
-                          ),
-                        ),
-                        child: Center(
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.center, // 🔥 fix
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  SizedBox(
-                                    height: 14,
-                                    width: 14,
-                                    child: Image.asset(
-                                      Assets.icons.clockIcon.path,
-                                      fit: BoxFit.contain,
-                                    ),
-                                  ),
-                                  const SizedBox(width: 6),
-                                  Flexible(
-                                    child: appText(
-                                      "50 Days or More Late",
-                                      fontWeight: FontWeight.w500,
-                                      color: AppColorHelper().warningRedColor,
-                                      fontSize: 14,
-                                      maxLines: 1,
-                                      overflow: TextOverflow.ellipsis,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(height: 4),
-                              appText(
-                                "$noCustomersMoreThan50 Customers",
+                    decoration: BoxDecoration(
+                      color: AppColorHelper()
+                          .warningBackgroundRed, // Adjust color as needed
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Image.asset(
+                              Assets.icons.clockIcon.path,
+                              height: 14,
+                              width: 14,
+                            ),
+                            const SizedBox(width: 6),
+                            Flexible(
+                              child: appText(
+                                "50 Days or More",
                                 fontWeight: FontWeight.w500,
                                 color: AppColorHelper().warningRedColor,
                                 fontSize: 14,
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
                               ),
-                            ],
-                          ),
-                        )),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 4),
+                        appText(
+                          "$noCustomersMoreThan50 Customers",
+                          fontWeight: FontWeight.w500,
+                          color: AppColorHelper().warningRedColor,
+                          fontSize: 14,
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ],
